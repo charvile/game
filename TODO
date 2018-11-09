@@ -1,0 +1,19 @@
+############# THRESHOLD 0 ##############################
+    [] - make the windows
+
+    [] - make the player
+     |-> [] - make the player move
+     |-> [] -make the player jump
+
+    [] - make simple map
+
+    [] - make ennemie
+    |-> [] make ennemie move
+
+    [] -> danger
+    | [] -> trap
+    | [] -> player death
+
+    [] - game over
+
+############ THRESHOLD 1 ######################
