@@ -1,5 +1,5 @@
 CC ?= gcc
-CFLAGS = -Wall -Werror -Wextra -std=c99 -pedantic -lSDL2
+CFLAGS = -Wall -Werror -Wextra -std=c99 -pedantic -lSDL2 -lSDL2_image
 OBJS = src/main.o
 EXEC = game
 
