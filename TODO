@@ -1,6 +1,7 @@
 ############# THRESHOLD 0 ##############################
     [] - make the windows
-
+     |-> - display welcome menu
+     |-> - display game over
     [] - make the player
      |-> [] - make the player move
      |-> [] -make the player jump
