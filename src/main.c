@@ -4,7 +4,7 @@
 
 #include <SDL2/SDL.h>
 
-int main(int argc, char *argv[])
+int main(void)
 {
     int height = 800;
     int width = 600;
