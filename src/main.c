@@ -10,6 +10,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 
 #define FONT_SIZE 50
 #define FONT_SIZE_S 25
@@ -58,9 +59,23 @@ char *itoa(int x)
 
 int main(void)
 {
-    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     IMG_Init(IMG_INIT_JPG || IMG_INIT_PNG);
     TTF_Init();
+
+    int flags = MIX_INIT_OGG | MIX_INIT_MP3;
+    int initted = Mix_Init(flags);
+    if (initted & flags != flags)
+    {
+        printf("Mix_Init: %s\n", Mix_GetError());
+        exit(2);
+    }
+    Mix_OpenAudio(MIX_DEFAULT_FREQUENCY*2, MIX_DEFAULT_FORMAT, 2, 1024);
+
+    Mix_Music *backgroundSound = Mix_LoadMUS("src/ressource/sound/sound.mp3");
+    Mix_Chunk *applause = Mix_LoadWAV("src/ressource/sound/applause_y.wav");
+    Mix_Chunk *airplane = Mix_LoadWAV("src/ressource/sound/airplane_chime_x.wav");
+
 
     TTF_Font *font = TTF_OpenFont("src/ressource/font/xpressive-regular.ttf", FONT_SIZE);
 
@@ -117,6 +132,8 @@ int main(void)
     bool running = true;
     bool playing = false;
     SDL_Event event;
+
+    Mix_PlayMusic(backgroundSound, -1);
     while (running)
     {
         if (p->is_in_jump)
@@ -187,6 +204,7 @@ int main(void)
                         }
                         if (isHit(bad, p->rect->x - p->rect->w, p->rect->y))
                         {
+                            Mix_PlayChannel(-1, applause, 0);
                             p->life -= 1;
                         }
 
@@ -212,6 +230,7 @@ int main(void)
                         }
                         if (isHit(bad, p->rect->x + p->rect->w, p->rect->y))
                         {
+                            Mix_PlayChannel(-1, applause, 0);
                             p->life -= 1;
                         }
                     }
@@ -306,6 +325,12 @@ int main(void)
     TTF_CloseFont(font);
     TTF_CloseFont(font_s);
     TTF_Quit();
+    Mix_FreeMusic(backgroundSound);
+    Mix_FreeChunk(applause);
+    Mix_FreeChunk(airplane);
+    Mix_CloseAudio;
+    Mix_Quit();
+
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
     SDL_Quit();
