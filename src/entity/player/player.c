@@ -1,50 +1,46 @@
-#include "../include_entity/entity.h"$
+#include "../include_entity/entity.h"
+#include <stdlib.h>
 
 #define HEIGHT 50
 #define WIDTH 50
 
-struct player
+struct vec2
 {
-    SDL_Surface *sprite;
-    SDL_Rect *rect;
-    struct vec2 *speed;
-    int life;
-    struct vec2 xlr;
-    struct vec2 pos;
-    struct vec2 vecwh;
+    int x;
+    int y;
 };
 
 struct player *initplayer(int x, int y)
 {
-    struct player *playerone = malloc(sizeof(struct player));
-    player->sprite = SDL_Load("../../ressource/sprit/player.png");
-    player->rect.x = x;
-    player->rect.y = y;
-    pos.x = x;
-    pos.y = y;
-    vecwh.x = HEIGHT;
-    vecwh.y = WIDTH;
-    player->speed.x = 0;
-    player->speed.y = 0;
-    player.life = 100;
+    struct player *player = malloc(sizeof(struct player));
+    player->sprite = IMG_Load("src/ressource/sprit/player.png");
+
+    player->rect = malloc(sizeof(SDL_Rect));
+    player->rect->x = x;
+    player->rect->y = y;
+    player->rect->w = WIDTH;
+    player->rect->h = HEIGHT;
+
+    player->speed = malloc(sizeof(struct vec2));
+    player->speed->x = 0;
+    player->speed->y = 0;
+    player->life = 100;
     return player;
 }
 
 void moveapply(struct player *player, struct vec2 vec, SDL_Surface *src, SDL_Surface *dst)
 {
-    SDL_Rect rect = player->rect;
-    player->rect.x = vec.x;
-    player->rect.y = vec.y
-    player->vec.x = vec.x;
-    player->vec.y = vec.y;
+    SDL_Rect *rect = player->rect;
+    player->rect->x = vec.x;
+    player->rect->y = vec.y;
     SDL_BlitSurface(src, NULL, dst, rect);
 }
 
 void writesprite(struct player *player, struct vec2 dst, struct vec2 pos, SDL_Surface *posx, SDL_Surface *finsh)
 {
     SDL_Rect *src = player->rect;
-    src.x = pos.x;
-    src.y = pos.y;
+    src->x = pos.x;
+    src->y = pos.y;
 
     SDL_Rect resdst;
     resdst.x = dst.x;

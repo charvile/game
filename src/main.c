@@ -4,6 +4,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include "entity/include_entity/entity.h"
 
 int main(void)
 {
@@ -17,6 +18,32 @@ int main(void)
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1,
         SDL_RENDERER_ACCELERATED);
+
+    /* Create player*/
+    struct player *p = initplayer(20, 450);
+
+    SDL_Rect floor;
+    floor.x = 0;
+    floor.y = 500;
+    floor.w = 800;
+    floor.h = 100;
+
+    SDL_Rect blocks[3];
+    blocks[0].x = 65;
+    blocks[0].y = 89;
+    blocks[0].w = 100;
+    blocks[0].h = 35;
+
+    blocks[1].x = 165;
+    blocks[1].y = 289;
+    blocks[1].w = 100;
+    blocks[1].h = 35;
+
+    blocks[2].x = 365;
+    blocks[2].y = 289;
+    blocks[2].w = 100;
+    blocks[2].h = 35;
+
     bool running = true;
     SDL_Event event;
     while (running)
@@ -27,49 +54,45 @@ int main(void)
             {
                 running = false;
             }
+            if (event.type == SDL_KEYDOWN)
+            {
+                int key =  event.key.keysym.sym;
+                if (key == SDLK_LEFT)
+                {
+                    p->rect->x -= p->rect->w / 2;
+                }
+                else if (key == SDLK_RIGHT)
+                {
+                    p->rect->x += p->rect->w / 2;
+                }
+            }
         }
 
         /* Set background color */
         SDL_SetRenderDrawColor(renderer, 155, 155, 155, 255);
         SDL_RenderClear(renderer);
 
+        SDL_SetRenderDrawColor(renderer, 100, 0, 0, 255);
+        SDL_RenderFillRect(renderer, &floor);
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 100, 255);
+        SDL_RenderFillRects(renderer, blocks, 3);
+        //SDL_RenderClear(renderer);
+
         /* Create first rectangle */
         SDL_Rect r1;
-        r1.x = 50;
-        r1.y = 50;
+        r1.x = 0;
+        r1.y = 0;
         r1.w = 50;
         r1.h = 50;
 
-        /* Set color for next render*/
-        //SDL_SetRenderDrawColor( renderer, 0, 0, 255, 255);
-
-        /* Render a first rectangle */
-
-        //SDL_RenderFillRect(renderer, &r1);
-        /*Render a second rectangle */
-
-        //SDL_SetRenderDrawColor( renderer, 0, 255, 0, 255);
-        //r1.x = 100;
-        //r1.y = 100;
-        //SDL_RenderFillRect(renderer, &r1);
-        //SDL_RenderClear(renderer);
-        //SDL_SetRenderDrawColor( renderer, 0, 0, 0, 0);
-
-        /* Display a sprit */
-        SDL_Surface *surface = IMG_Load("src/ressource/sprit/player.png");
+        SDL_Surface *surface = p->sprite;
         SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-        SDL_Rect character;
-        character.x = 50;
-        character.y = 50;
-        character.w = 50;
-        character.h = 50;
-
-        SDL_RenderCopy(renderer, texture, &r1, &character);
-        //SDL_RenderFillRect(renderer, &character);
-
+        SDL_RenderCopy(renderer, texture, &r1, p->rect);
         SDL_RenderPresent(renderer);
         SDL_RenderClear(renderer);
+        SDL_Delay(25);
     }
 
     SDL_DestroyWindow(window);
