@@ -1,15 +1,15 @@
 ############# THRESHOLD 0 ##############################
-    [] - make the windows
+    [X] - make the window
      |-> - display welcome menu
      |-> - display game over
     [] - make the player
-     |-> [] - make the player move
+     |-> [X] - make the player move
      |-> [] -make the player jump
 
-    [] - make simple map
+    [X] - make simple map
 
-    [] - make ennemie
-    |-> [] make ennemie move
+    [] - make ennemy
+    |-> [] make ennemy move
 
     [] -> danger
     | [] -> trap
