@@ -19,7 +19,7 @@ int main(void)
     int height = 600;
     int width = 800;
     SDL_Init(SDL_INIT_VIDEO);
-    IMG_Init(IMG_INIT_JPG);
+    IMG_Init(IMG_INIT_JPG|| IMG_INIT_PNG);
 
     SDL_Window *window  = SDL_CreateWindow("<GAME NAME>", SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
@@ -40,6 +40,18 @@ int main(void)
     floor.y = 500;
     floor.w = 800;
     floor.h = 100;
+
+    SDL_Rect Game_Over[1];
+    floor.x = 500;
+    floor.y = 500;
+    floor.w = 800;
+    floor.h = 800;
+
+    SDL_Rect hole[1];
+    hole[0].x = 400;
+    hole[0].y = 490;
+    hole[0].w = 50;
+    hole[0].h = 10;
 
     SDL_Rect blocks[4];
     blocks[0].x = 500;
@@ -86,7 +98,7 @@ int main(void)
                     }
                     if (! isHit(bad, p->rect->x - p->rect->w, p->rect->y))
                     {
-                        p->life -= 20;
+                        p->life -= 10;
                     }
                 }
                 else if (key == SDLK_RIGHT)
@@ -97,14 +109,21 @@ int main(void)
                     }
                     if (! isHit(bad, p->rect->x + p->rect->w, p->rect->y))
                     {
-                        p->life -= 20;
+                        p->life -= 10;
                     }
                 }
             }
         }
         if (p->life <= 0)
         {
-            printf("tmortlol \n");
+            printf("tmort\n");
+            SDL_Surface *over = IMG_Load("src/ressource/sprit/player.png");
+            SDL_Texture *textuover = SDL_CreateTextureFromSurface(renderer, over);
+            SDL_RenderCopy(renderer, textuover, NULL, Game_Over);
+
+            SDL_RenderClear(renderer);
+            SDL_RenderPresent(renderer);
+            continue;
         }
         double delta = delta_time(&last_update);
         struct vec2 sub = subroutine(bad, &subroutmaker, isrot, delta);
@@ -129,8 +148,19 @@ int main(void)
         SDL_SetRenderDrawColor(renderer, 0, 0, 100, 255);
         SDL_RenderFillRects(renderer, blocks, 4);
 
-        //SDL_RenderClear(renderer);
+        /* Render spike*/
+        SDL_Surface *holy = IMG_Load("src/ressource/texture/floor.png");
 
+        SDL_Texture *textuhole = SDL_CreateTextureFromSurface(renderer, holy);
+        //SDL_FreeSurface(holy);
+        SDL_RenderCopy(renderer, textuhole, NULL, hole);
+        //SDL_RenderClear(renderer);
+           /*
+        SDL_Surface *over = IMG_Load("src/ressource/texture/floor.jpg");
+            SDL_Texture *textuover = SDL_CreateTextureFromSurface(renderer, over);
+            //SDL_FreeSurface(holy);
+            SDL_RenderCopy(renderer, textuover, NULL, Game_Over);
+        */
         /* Create first rectangle */
         SDL_Rect r1;
         r1.x = 0;
@@ -140,7 +170,7 @@ int main(void)
 
         SDL_Surface *surface = p->sprite;
         SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-
+        //SDL_FreeSurface(surface);
         SDL_RenderCopy(renderer, texture, &r1, p->rect);
 
         /* create ennemy */

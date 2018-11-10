@@ -13,8 +13,8 @@ struct vec2
 struct player *initennemy(int x, int y)
 {
     struct player *en = malloc(sizeof(struct player));
-    en->sprite = IMG_Load("src/ressource/sprit/ennemy.png");
-    en->sprite_mirror = IMG_Load("src/ressource/sprit/player.png");
+    en->sprite = IMG_Load("src/ressource/sprit/ennemy_mirror.png");
+    en->sprite_mirror = IMG_Load("src/ressource/sprit/ennemy_mirror.png");
 
     en->rect = malloc(sizeof(SDL_Rect));
     en->rect->x = x;
