@@ -4,4 +4,4 @@
 #include "../global.h"
 
 //char ** readmap(char *path, int *w, int *h);
-SDL_Rect *createblklist(char *map_path, int *size);
+SDL_Rect *createblklist(char *map_path, int *size, SDL_Rect *finish);

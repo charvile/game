@@ -20,6 +20,7 @@ struct player
     struct vec2 *pos;
     int life;
     int is_in_jump;
+    int is_going_right;
 };
 
 int isHit(struct player *bad, int x, int y);

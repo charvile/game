@@ -22,21 +22,19 @@ void jump(struct player *plr, float dt)
 }
 
 
-void horizontal_move(struct player *plr, float dt)
+void horizontal_move(struct player *plr, int direction, float dt)
 {
     /* horizontally, gravity has no impact on acceleration */
     struct vec2 pos;
     pos.x = plr->rect->x;
-    pos.y = plr->rect->y;
-    struct vec2 speed = *plr->speed;
-    //struct vec2 xlr = *plr->xlr;
-
+    struct vec2 speed;
+    speed.x = plr->speed->x * direction;
     /* compute the new position, speed, acceleration */
     //speed.x += xlr.x * (dt/1000);
-    pos.x += speed.x * (dt/1000);
+    pos.x += speed.x * (dt/dt);
 
     plr->rect->x = pos.x;
-    plr->speed->x = speed.x;
+    //plr->speed->x = speed.x;
 
     return;
 }
