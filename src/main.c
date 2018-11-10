@@ -44,7 +44,8 @@ int main(void)
     SDL_Surface *rot = bad->sprite_mirror;
     SDL_Surface *normalsprite = bad->sprite;
 
-    SDL_Texture *floor_texture = create_texture_from_image("src/ressource/texture/floor.png",       renderer);
+    SDL_Texture *floor_texture = create_texture_from_image("src/ressource/texture/floor.png", renderer);
+
 
     SDL_Rect floor;
     floor.x = 0;
