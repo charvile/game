@@ -10,7 +10,6 @@ struct player
     SDL_Rect *rect;
     struct vec2 *speed;
     int life;
-    //struct vec2 xlr;
 };
 
 struct player *initplayer(int x, int y);

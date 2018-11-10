@@ -1,10 +1,11 @@
+#include "entity/include_entity/entity.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include "entity/include_entity/entity.h"
 
 int main(void)
 {
@@ -72,11 +73,14 @@ int main(void)
         SDL_SetRenderDrawColor(renderer, 155, 155, 155, 255);
         SDL_RenderClear(renderer);
 
+        /* Render floor */
         SDL_SetRenderDrawColor(renderer, 100, 0, 0, 255);
         SDL_RenderFillRect(renderer, &floor);
 
+        /* Render obstacles */
         SDL_SetRenderDrawColor(renderer, 0, 0, 100, 255);
         SDL_RenderFillRects(renderer, blocks, 3);
+
         //SDL_RenderClear(renderer);
 
         /* Create first rectangle */
