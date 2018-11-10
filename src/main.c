@@ -38,20 +38,20 @@ int main(void)
     SDL_Rect floor;
     floor.x = 0;
     floor.y = 500;
-    floor.w = 800;
-    floor.h = 100;
+    floor.w = 500;
+    floor.h = 500;
 
-    SDL_Rect Game_Over[1];
-    floor.x = 500;
-    floor.y = 500;
-    floor.w = 800;
-    floor.h = 800;
+    SDL_Rect Game_Over;
+    Game_Over.x = 10;
+    Game_Over.y = 10;
+    Game_Over.w = 800;
+    Game_Over.h = 600;
 
-    SDL_Rect hole[1];
-    hole[0].x = 400;
-    hole[0].y = 490;
-    hole[0].w = 50;
-    hole[0].h = 10;
+    SDL_Rect hole;
+    hole.x = 400;
+    hole.y = 490;
+    hole.w = 50;
+    hole.h = 10;
 
     SDL_Rect blocks[4];
     blocks[0].x = 500;
@@ -116,12 +116,11 @@ int main(void)
         }
         if (p->life <= 0)
         {
-            printf("tmort\n");
-            SDL_Surface *over = IMG_Load("src/ressource/sprit/player.png");
-            SDL_Texture *textuover = SDL_CreateTextureFromSurface(renderer, over);
-            SDL_RenderCopy(renderer, textuover, NULL, Game_Over);
-
             SDL_RenderClear(renderer);
+            SDL_Surface *over = IMG_Load("src/ressource/texture/Gameover.png");
+            SDL_Texture *textuover = SDL_CreateTextureFromSurface(renderer, over);
+            SDL_RenderCopy(renderer, textuover, NULL, &Game_Over);
+
             SDL_RenderPresent(renderer);
             continue;
         }
@@ -141,8 +140,11 @@ int main(void)
         SDL_RenderClear(renderer);
 
         /* Render floor */
-        SDL_SetRenderDrawColor(renderer, 100, 0, 0, 255);
-        SDL_RenderFillRect(renderer, &floor);
+        //SDL_SetRenderDrawColor(renderer, 100, 0, 0, 255);
+        //SDL_RenderFillRect(renderer, &floor);
+        SDL_Surface *flor = IMG_Load("src/ressource/texture/floor.png");
+        SDL_Texture *textuflor = SDL_CreateTextureFromSurface(renderer, flor);
+        SDL_RenderCopy(renderer, textuflor, NULL, &floor);
 
         /* Render obstacles */
         SDL_SetRenderDrawColor(renderer, 0, 0, 100, 255);
@@ -153,15 +155,9 @@ int main(void)
 
         SDL_Texture *textuhole = SDL_CreateTextureFromSurface(renderer, holy);
         //SDL_FreeSurface(holy);
-        SDL_RenderCopy(renderer, textuhole, NULL, hole);
+        SDL_RenderCopy(renderer, textuhole, NULL, &hole);
         //SDL_RenderClear(renderer);
-           /*
-        SDL_Surface *over = IMG_Load("src/ressource/texture/floor.jpg");
-            SDL_Texture *textuover = SDL_CreateTextureFromSurface(renderer, over);
-            //SDL_FreeSurface(holy);
-            SDL_RenderCopy(renderer, textuover, NULL, Game_Over);
-        */
-        /* Create first rectangle */
+       /* Create first rectangle */
         SDL_Rect r1;
         r1.x = 0;
         r1.y = 0;
