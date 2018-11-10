@@ -21,7 +21,6 @@ int is_on_platform(SDL_Rect *player, SDL_Rect *blocks, int size)
 {
     int player_x = player->x + player->w / 2;
     int player_y = player->y + player->h;
-    printf("Player is at x:%d|y:%d\n", player->x, player->y);
     for (int i = 0; i < size; i++)
     {
         int x = blocks[i].x;

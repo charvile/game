@@ -21,42 +21,9 @@
 
 
 #define INITIAL_VERTICAL_SPEED  -22
-#define INITIAL_HORIZONTAL_SPEED 10
+#define INITIAL_HORIZONTAL_SPEED 2
 
-unsigned int_width(int i)
-{
-    unsigned res = 0;
-    if (i < 1)
-    {
-        res = 1;
-        i *= -1;
-    }
 
-    while (i > 0)
-    {
-        i /= 10;
-        res += 1;
-    }
-
-    return res;
-}
-char *itoa(int x)
-{
-    char *res = malloc(10);
-    int width = int_width(x);
-
-    int cursor = width - 1;
-
-    while(x > 0)
-    {
-        res[cursor--] = x % 10 + '0';
-        x /= 10;
-    }
-
-    res[width] = '\0';
-
-    return res;
-}
 
 int main(void)
 {
@@ -82,7 +49,7 @@ int main(void)
 
     TTF_Font *font_s = TTF_OpenFont("src/ressource/font/xpressive-regular.ttf", FONT_SIZE_S);
 
-    SDL_Window *window  = SDL_CreateWindow("<RUN WITH THE BEAT>", SDL_WINDOWPOS_UNDEFINED,
+    SDL_Window *window  = SDL_CreateWindow("Morty the Mortal", SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_OPENGL);
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1,
@@ -92,45 +59,34 @@ int main(void)
     uint64_t last_update = SDL_GetPerformanceCounter();
 
     /* Create player and ennemy*/
-    struct player *p = initplayer(00, 450, renderer);
+    struct player *p = initplayer(200, 450, renderer);
     struct player *bad = initennemy(50,450, renderer);
     p->speed->y = INITIAL_VERTICAL_SPEED;
     p->speed->x = INITIAL_HORIZONTAL_SPEED;
 
+    /* Initialize timer */
+    int TIME = 60;
+    int int_timer = TIME;
     SDL_Surface *rot = bad->sprite_mirror;
     SDL_Surface *normalsprite = bad->sprite;
 
     SDL_Texture *floor_texture = create_texture_from_image("src/ressource/texture/floor.png", renderer);
-    SDL_Texture *welcome_texture = create_texture_from_image("src/ressource/texture/sound-wave.jpg", renderer);
+    SDL_Texture *welcome_texture = create_texture_from_image("src/ressource/texture/Welcome_2.jpg", renderer);
     SDL_Texture *background_texture = create_texture_from_image("src/ressource/texture/background.png", renderer);
     SDL_Texture *finish_texture = create_texture_from_image("src/ressource/sprit/space-lander.png", renderer);
     SDL_Texture *victory_texture = create_texture_from_image("src/ressource/texture/victory.jpg", renderer);
-    SDL_Texture *gameover_texture = create_texture_from_image("src/ressource/texture/Gameover.png", renderer);
+    SDL_Texture *gameover_texture = create_texture_from_image("src/ressource/texture/Gameover.jpg", renderer);
 
 
-    SDL_Rect floor;
-    floor.x = 0;
-    floor.y = 500;
-    floor.w = 800;
-    floor.h = 500;
+    SDL_Rect floor = { 0, 500, 800, 500 };
 
-    SDL_Rect full_screen;
-    full_screen.x = 0;
-    full_screen.y = 0;
-    full_screen.w = 800;
-    full_screen.h = 600;
+    SDL_Rect full_screen = { 0, 0, 800, 600 };
 
-    SDL_Rect hole;
-    hole.x = 400;
-    hole.y = 490;
-    hole.w = 50;
-    hole.h = 10;
+    SDL_Rect hole = { 400, 490, 50, 10 };
 
     int num_blocks;
     SDL_Rect finish;
     SDL_Rect *blocks = createblklist("src/ressource/map/map1.map", &num_blocks, &finish);
-    printf("Finish xy is %d;%d\n", finish.x, finish.y);
-    printf("Finish hw is %d;%d\n", finish.w, finish.h);
 
     //display_sprite_from_texture(background_texture, &full_screen, renderer);
 
@@ -217,14 +173,14 @@ int main(void)
                     {
 
                     }
-                    else if (p->rect->x < 50)
+                    else if (p->rect->x < 300)
                     {
-                        move_blocks(blocks, offset, num_blocks);
-                        move_player(bad, offset);
-                        p->pos->x += offset;
+                        move_blocks(blocks, offset * 2, num_blocks);
+                        move_player(bad, offset * 2);
+                        //p->pos->x += offset * 2;
 
-                        move_block(&hole, offset);
-                        move_block(&finish, offset);
+                        move_block(&hole, offset * 2);
+                        move_block(&finish, offset * 2);
                     }
                     else
                     {
@@ -236,7 +192,7 @@ int main(void)
                         if (isHit(bad, p->rect->x - p->rect->w, p->rect->y))
                         {
                             Mix_PlayChannel(-1, applause, 0);
-                            p->life -= 1;
+                            p->life -= 10;
                         }
 
                     }
@@ -250,26 +206,27 @@ int main(void)
                     {
                         win = true;
                     }
-                    if (p->rect->x > 600)
+                    if (p->rect->x > 400)
                     {
-                        move_blocks(blocks, offset, num_blocks);
-                        move_player(bad, offset);
-                        move_block(&hole, offset);
-                        move_block(&finish, offset);
-                        p->pos->x += offset;
+                        puts("Move blocks to the right");
+                        move_blocks(blocks, offset * 2, num_blocks);
+                        move_player(bad, offset * 2);
+                        move_block(&hole, offset * 2);
+                        move_block(&finish, offset * 2);
+                        //p->pos->x += offset * 2;
                     }
                     else
                     {
-                        //printf("Going right by %d\n", offset);
+                        printf("Going right by %d\n", offset);
                         if (!isblock(p->rect->x + p->rect->w, p->rect->y, blocks, num_blocks))
                         {
                             p->rect->x += offset;
-                            p->pos->x += offset;
+                            //p->pos->x += offset;
                         }
                         if (isHit(bad, p->rect->x + p->rect->w, p->rect->y))
                         {
                             Mix_PlayChannel(-1, applause, 0);
-                            p->life -= 1;
+                            p->life -= 10;
                         }
                     }
 
@@ -277,11 +234,17 @@ int main(void)
             }
         }
 
+        if (int_timer)
+        {
+            Uint32 timer = SDL_GetTicks();
+            int_timer = TIME - timer/1000;
+        }
+
         /* Display welcome screen */
         if (!playing)
         {
             display_sprite_from_texture(welcome_texture, &full_screen, renderer);
-            display_text(250, 100, "RUN WITH THE BEAT", font, renderer);
+            display_text(250, 100, "Morty the Mortal", font, renderer);
             SDL_SetRenderDrawColor(renderer, 50, 50, 150, 155);
             display_rect(300, 300, 200, 50, renderer);
             display_rect(300, 375, 200, 50, renderer);
@@ -295,9 +258,22 @@ int main(void)
             continue;
         }
         /* Display game over screen */
-        if (p->life <= 0)
+        if (p->life <= 0 || !int_timer)
         {
             display_sprite_from_texture(gameover_texture, &full_screen, renderer);
+            display_rect(300, 380, 200, 50, renderer);
+            display_rect(300, 450, 200, 50, renderer);
+            display_rect(300, 520, 200, 50, renderer);
+
+            display_text(250, 200, "GAME OVER!", font, renderer);
+            display_text(370, 390, "Restart", font_s, renderer);
+            display_text(375, 455, "Menu", font_s, renderer);
+            display_text(378, 525, "Quit", font_s, renderer);
+
+            if (!int_timer)
+            {
+                display_text(250, 50, "Ran out of time!", font, renderer);
+            }
 
             SDL_RenderPresent(renderer);
             SDL_Delay(200);
@@ -366,6 +342,14 @@ int main(void)
         display_text(10, 0 , hp, font_s, renderer);
         display_text(50, 0, life, font_s, renderer);
         display_text(700, 0, "Player 1", font_s, renderer);
+
+        /* Display timer */
+        char *char_timer = "Time left : ";
+        char *time = itoa(int_timer);
+
+        display_text(10, 25 , char_timer, font_s, renderer);
+        display_text(100, 25, time, font_s, renderer);
+
         /* Display screen */
         SDL_RenderPresent(renderer);
         SDL_RenderClear(renderer);
