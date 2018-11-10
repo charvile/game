@@ -4,6 +4,12 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+struct vec2
+{
+    int x;
+    int y;
+};
+
 struct player
 {
     SDL_Surface *sprite;
@@ -11,7 +17,9 @@ struct player
     SDL_Texture *texture;
     SDL_Rect *rect;
     struct vec2 *speed;
+    struct vec2 *pos;
     int life;
+    int is_in_jump;
 };
 
 int isHit(struct player *bad, int x, int y);

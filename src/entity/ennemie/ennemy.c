@@ -4,12 +4,6 @@
 #define HEIGHT 50
 #define WIDTH 50
 
-struct vec2
-{
-    int x;
-    int y;
-};
-
 struct player *initennemy(int x, int y, SDL_Renderer *renderer)
 {
     struct player *en = malloc(sizeof(struct player));

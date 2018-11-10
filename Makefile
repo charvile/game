@@ -1,6 +1,6 @@
 CC ?= gcc
 CFLAGS = -Wall -g -Werror -Wextra -std=c99 -pedantic -lSDL2 -lSDL2_image -lSDL2_ttf
-OBJS = src/main.o src/entity/player/player.o src/physics/physics.o src/entity/ennemie/ennemy.o src/graphics/display.o src/map/map.o
+OBJS = src/main.o src/entity/player/player.o src/physics/physics.o src/entity/ennemie/ennemy.o src/graphics/display.o src/map/map.o src/vect/vect.o
 EXEC = game
 
 .PHONY: run clean

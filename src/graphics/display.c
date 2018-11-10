@@ -56,3 +56,13 @@ void move_blocks(SDL_Rect *blocks, int offset, int size)
         blocks[i].x -= offset;
     }
 }
+
+void move_player(struct player *p, int offset)
+{
+    p->rect->x -= offset;
+}
+
+void move_block(SDL_Rect *block, int offset)
+{
+    block->x -= offset;
+}

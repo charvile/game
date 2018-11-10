@@ -4,12 +4,6 @@
 #define HEIGHT 50
 #define WIDTH 50
 
-struct vec2
-{
-    int x;
-    int y;
-};
-
 struct player *initplayer(int x, int y, SDL_Renderer *renderer)
 {
     struct player *player = malloc(sizeof(struct player));
@@ -21,6 +15,10 @@ struct player *initplayer(int x, int y, SDL_Renderer *renderer)
     player->rect->y = y;
     player->rect->w = WIDTH;
     player->rect->h = HEIGHT;
+
+    player->pos = malloc(sizeof(struct vec2));
+    player->pos->x = x;
+    player->pos->y = y;
 
     player->speed = malloc(sizeof(struct vec2));
     player->speed->x = 0;

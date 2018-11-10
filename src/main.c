@@ -16,6 +16,11 @@
 #define HEIGHT 600
 #define WIDTH 800
 
+#define TIME_DELTA 100
+
+
+#define INITIAL_VERTICAL_SPEED  800
+
 unsigned int_width(int i)
 {
     unsigned res = 0;
@@ -51,12 +56,6 @@ char *itoa(int x)
     return res;
 }
 
-struct vec2
-{
-    int x;
-    int y;
-};
-
 int main(void)
 {
     SDL_Init(SDL_INIT_VIDEO);
@@ -79,12 +78,14 @@ int main(void)
     /* Create player and ennemy*/
     struct player *p = initplayer(20, 450, renderer);
     struct player *bad = initennemy(50,450, renderer);
+    p->speed->y = -15;
 
     SDL_Surface *rot = bad->sprite_mirror;
     SDL_Surface *normalsprite = bad->sprite;
 
     SDL_Texture *floor_texture = create_texture_from_image("src/ressource/texture/floor.png", renderer);
     SDL_Texture *welcome_texture = create_texture_from_image("src/ressource/texture/sound-wave.jpg", renderer);
+    SDL_Texture *background_texture = create_texture_from_image("src/ressource/texture/background.png", renderer);
 
     SDL_Rect floor;
     floor.x = 0;
@@ -107,6 +108,9 @@ int main(void)
     int num_blocks;
     SDL_Rect *blocks = createblklist("src/ressource/map/map1.map", &num_blocks);
 
+    //display_sprite_from_texture(background_texture, &full_screen, renderer);
+
+
     int subroutmaker = 0;
     int isrot = 0;
 
@@ -115,6 +119,17 @@ int main(void)
     SDL_Event event;
     while (running)
     {
+        if (p->is_in_jump)
+        {
+            //double dt = delta_time(&last_update);
+            jump(p, 1);
+            if (p->rect->y >= (floor.y - p->rect->h))
+            {
+                p->is_in_jump = 0;
+                p->speed->y = -15;
+
+            }
+        }
         while (SDL_PollEvent(&event))
         {
             if (!playing)
@@ -142,46 +157,68 @@ int main(void)
             }
             if (playing && event.type == SDL_KEYDOWN)
             {
-
-                double player_delta = delta_time(&last_update);
+                double player_delta =  delta_time(&last_update);
                 int key =  event.key.keysym.sym;
+                if (key == SDLK_UP)
+                {
+                    p->is_in_jump = 1;
+                }
                 if (key == SDLK_LEFT)
                 {
-                    if (!isblock(p->rect->x - p->rect->w, p->rect->y, blocks, num_blocks))
-                    {
-                        p->rect->x -= p->rect->w * player_delta / 200;
-                    }
-                    if (isHit(bad, p->rect->x - p->rect->w, p->rect->y))
-                    {
-                        p->life -= 10;
-                    }
-                    if (p->rect->x < 400)
+                    int offset = p->rect->w * player_delta / -TIME_DELTA;
+                    if (p->pos->x <= 50)
                     {
 
-                        move_blocks(blocks, p->rect->w * -1, num_blocks);
+                    }
+                    else if (p->rect->x < 50)
+                    {
+                        move_blocks(blocks, offset, num_blocks);
+                        move_player(bad, offset);
+                        p->pos->x += offset;
+
+                        move_block(&hole, offset);
+                    }
+                    else
+                    {
+                        if (!isblock(p->rect->x - p->rect->w, p->rect->y, blocks, num_blocks))
+                        {
+                            p->rect->x += offset;
+                            p->pos->x += offset;
+                        }
+                        if (isHit(bad, p->rect->x - p->rect->w, p->rect->y))
+                        {
+                            p->life -= 1;
+                        }
+
                     }
                 }
                 else if (key == SDLK_RIGHT)
                 {
-                    if (!isblock(p->rect->x + p->rect->w, p->rect->y, blocks, num_blocks))
+                    int offset = p->rect->w * player_delta / TIME_DELTA;
+                    if (p->rect->x > 700)
                     {
-                        p->rect->x += p->rect->w * player_delta / 200;
+                        move_blocks(blocks, offset, num_blocks);
+                        move_player(bad, offset);
+                        move_block(&hole, offset);
+                        p->pos->x += offset;
                     }
-                    if (isHit(bad, p->rect->x + p->rect->w, p->rect->y))
+                    else
                     {
-                        p->life -= 10;
+                        printf("Going right by %d\n", offset);
+                        if (!isblock(p->rect->x + p->rect->w, p->rect->y, blocks, num_blocks))
+                        {
+                            p->rect->x += offset;
+                            p->pos->x += offset;
+                        }
+                        if (isHit(bad, p->rect->x + p->rect->w, p->rect->y))
+                        {
+                            p->life -= 1;
+                        }
                     }
 
-                    if (p->rect->x > 400)
-                    {
-
-                        puts("Need to move map");
-                        move_blocks(blocks, p->rect->w*player_delta/50, num_blocks);
-                    }
                 }
             }
         }
-
 
         /* Display welcome screen */
         if (!playing)
@@ -202,13 +239,13 @@ int main(void)
         /* Display game over screen */
         if (p->life <= 0)
         {
-            //display_texture("src/ressource/texture/Gameover.png", &Game_Over,
-                //renderer);
+            display_texture("src/ressource/texture/Gameover.png", &full_screen,
+                renderer);
 
-            //SDL_RenderPresent(renderer);
-            //continue;
-            break;
+            SDL_RenderPresent(renderer);
+            continue;
         }
+
         double delta = delta_time(&last_update);
         struct vec2 sub = subroutine(bad, &subroutmaker, isrot, delta);
         bad->rect->x = sub.y;
@@ -263,6 +300,7 @@ int main(void)
     /* Cleanup */
     SDL_DestroyTexture(floor_texture);
     SDL_DestroyTexture(welcome_texture);
+    SDL_DestroyTexture(background_texture);
     destroy_player(p);
     destroy_player(bad);
     TTF_CloseFont(font);
