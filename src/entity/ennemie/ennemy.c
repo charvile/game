@@ -10,11 +10,12 @@ struct vec2
     int y;
 };
 
-struct player *initennemy(int x, int y)
+struct player *initennemy(int x, int y, SDL_Renderer *renderer)
 {
     struct player *en = malloc(sizeof(struct player));
-    en->sprite = IMG_Load("src/ressource/sprit/ennemy_mirror.png");
+    en->sprite = IMG_Load("src/ressource/sprit/ennemy.png");
     en->sprite_mirror = IMG_Load("src/ressource/sprit/ennemy_mirror.png");
+    en->texture = SDL_CreateTextureFromSurface(renderer, en->sprite);
 
     en->rect = malloc(sizeof(SDL_Rect));
     en->rect->x = x;
@@ -74,7 +75,7 @@ struct vec2 subroutine(struct player *bad, int *i, int rot, double delta)
 int isHit(struct player *bad, int x, int y)
 {
     if (x >= bad->rect->x &&
-            x <= bad->rect->x + HEIGHT)
+            x <= bad->rect->x + WIDTH)
     {
         if (y >= bad->rect->y
                 && y <= bad->rect->y + HEIGHT)

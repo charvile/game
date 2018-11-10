@@ -1,4 +1,5 @@
 #include "entity/include_entity/entity.h"
+#include "graphics/display.h"
 #include "global.h"
 
 #include <stdio.h>
@@ -7,6 +8,11 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+
+#define FONT_SIZE 25
+#define HEIGHT 600
+#define WIDTH 800
 
 struct vec2
 {
@@ -16,36 +22,41 @@ struct vec2
 
 int main(void)
 {
-    int height = 600;
-    int width = 800;
     SDL_Init(SDL_INIT_VIDEO);
-    IMG_Init(IMG_INIT_JPG|| IMG_INIT_PNG);
+    IMG_Init(IMG_INIT_JPG || IMG_INIT_PNG);
+    TTF_Init();
+
+    TTF_Font *font = TTF_OpenFont("src/ressource/font/Xanadu.ttf", FONT_SIZE);
 
     SDL_Window *window  = SDL_CreateWindow("<GAME NAME>", SDL_WINDOWPOS_UNDEFINED,
-            SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
+            SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_OPENGL);
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1,
             SDL_RENDERER_ACCELERATED);
 
+
     uint64_t last_update = SDL_GetPerformanceCounter();
-    /* Create player*/
-    struct player *p = initplayer(20, 450);
-    struct player *bad = initennemy(50,450);
+
+    /* Create player and ennemy*/
+    struct player *p = initplayer(20, 450, renderer);
+    struct player *bad = initennemy(50,450, renderer);
 
     SDL_Surface *rot = bad->sprite_mirror;
     SDL_Surface *normalsprite = bad->sprite;
 
+    SDL_Texture *floor_texture = create_texture_from_image("src/ressource/texture/floor.png",       renderer);
+
     SDL_Rect floor;
     floor.x = 0;
     floor.y = 500;
-    floor.w = 500;
+    floor.w = 800;
     floor.h = 500;
 
-    SDL_Rect Game_Over;
-    Game_Over.x = 10;
-    Game_Over.y = 10;
-    Game_Over.w = 800;
-    Game_Over.h = 600;
+    //SDL_Rect Game_Over;
+    //Game_Over.x = 0;
+    //Game_Over.y = 0;
+    //Game_Over.w = 800;
+    //Game_Over.h = 600;
 
     SDL_Rect hole;
     hole.x = 400;
@@ -78,6 +89,7 @@ int main(void)
     int isrot = 0;
 
     bool running = true;
+    bool playing = true;
     SDL_Event event;
     while (running)
     {
@@ -87,16 +99,16 @@ int main(void)
             {
                 running = false;
             }
-            if (event.type == SDL_KEYDOWN)
+            if (playing && event.type == SDL_KEYDOWN)
             {
                 int key =  event.key.keysym.sym;
                 if (key == SDLK_LEFT)
                 {
                     if (!isblock(p->rect->x - p->rect->w, p->rect->y, blocks, 4))
                     {
-                        p->rect->x -= p->rect->w;
+                        p->rect->x -= p->rect->w / 2;
                     }
-                    if (! isHit(bad, p->rect->x - p->rect->w, p->rect->y))
+                    if (isHit(bad, p->rect->x - p->rect->w, p->rect->y))
                     {
                         p->life -= 10;
                     }
@@ -105,24 +117,32 @@ int main(void)
                 {
                     if (!isblock(p->rect->x + p->rect->w, p->rect->y, blocks, 4))
                     {
-                        p->rect->x += p->rect->w;
+                        p->rect->x += p->rect->w / 2;
                     }
-                    if (! isHit(bad, p->rect->x + p->rect->w, p->rect->y))
+                    if (isHit(bad, p->rect->x + p->rect->w, p->rect->y))
                     {
                         p->life -= 10;
                     }
                 }
             }
         }
-        if (p->life <= 0)
+        /* Display welcome screen */
+        if (!playing)
         {
-            SDL_RenderClear(renderer);
-            SDL_Surface *over = IMG_Load("src/ressource/texture/Gameover.png");
-            SDL_Texture *textuover = SDL_CreateTextureFromSurface(renderer, over);
-            SDL_RenderCopy(renderer, textuover, NULL, &Game_Over);
-
+            //display_texture("src/ressource/texture/Welcome.jpg", &Game_Over,
+                //renderer);
             SDL_RenderPresent(renderer);
             continue;
+        }
+        /* Display game over screen */
+        if (p->life <= 0)
+        {
+            //display_texture("src/ressource/texture/Gameover.png", &Game_Over,
+                //renderer);
+
+            //SDL_RenderPresent(renderer);
+            //continue;
+            break;
         }
         double delta = delta_time(&last_update);
         struct vec2 sub = subroutine(bad, &subroutmaker, isrot, delta);
@@ -133,59 +153,50 @@ int main(void)
             bad->sprite = normalsprite;
         }
         else
+        {
             bad->sprite = rot;
+        }
 
         /* Set background color */
         SDL_SetRenderDrawColor(renderer, 155, 155, 155, 255);
         SDL_RenderClear(renderer);
 
         /* Render floor */
-        //SDL_SetRenderDrawColor(renderer, 100, 0, 0, 255);
-        //SDL_RenderFillRect(renderer, &floor);
-        SDL_Surface *flor = IMG_Load("src/ressource/texture/floor.png");
-        SDL_Texture *textuflor = SDL_CreateTextureFromSurface(renderer, flor);
-        SDL_RenderCopy(renderer, textuflor, NULL, &floor);
+        display_sprite_from_texture(floor_texture, &floor, renderer);
+        //display_texture("src/ressource/texture/floor.png", &floor, renderer);
 
-        /* Render obstacles */
+        /* Display obstacles */
         SDL_SetRenderDrawColor(renderer, 0, 0, 100, 255);
         SDL_RenderFillRects(renderer, blocks, 4);
 
         /* Render spike*/
-        SDL_Surface *holy = IMG_Load("src/ressource/texture/floor.png");
+        display_sprite_from_texture(floor_texture, &hole, renderer);
+        //display_sprite("src/ressource/texture/floor.png", &hole, renderer);
 
-        SDL_Texture *textuhole = SDL_CreateTextureFromSurface(renderer, holy);
-        //SDL_FreeSurface(holy);
-        SDL_RenderCopy(renderer, textuhole, NULL, &hole);
-        //SDL_RenderClear(renderer);
-       /* Create first rectangle */
-        SDL_Rect r1;
-        r1.x = 0;
-        r1.y = 0;
-        r1.w = 50;
-        r1.h = 50;
+       /* Display player */
+        display_sprite_from_texture(p->texture, p->rect, renderer);
 
-        SDL_Surface *surface = p->sprite;
-        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-        //SDL_FreeSurface(surface);
-        SDL_RenderCopy(renderer, texture, &r1, p->rect);
+        /* Display ennemy */
+        display_sprite_from_texture(bad->texture, bad->rect, renderer);
 
-        /* create ennemy */
-        SDL_Rect r2;
-        r2.x = 0;
-        r2.y = 0;
-        r2.w = 50;
-        r2.h = 50;
-        SDL_Surface *surface2 = bad->sprite;
-        SDL_Texture *texture2 = SDL_CreateTextureFromSurface(renderer, surface2);
+        /* Display text */
+        display_text(0, 0, "Player 1", font, renderer);
 
-        SDL_RenderCopy(renderer, texture2, &r2, bad->rect);
-
+        /* Display screen */
         SDL_RenderPresent(renderer);
         SDL_RenderClear(renderer);
         SDL_Delay(25);
 
+        //running = false;
+
     }
 
+    /* Cleanup */
+    SDL_DestroyTexture(floor_texture);
+    destroy_player(p);
+    destroy_player(bad);
+    TTF_CloseFont(font);
+    TTF_Quit();
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
     SDL_Quit();
