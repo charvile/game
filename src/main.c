@@ -67,7 +67,7 @@ int main(void)
 
     TTF_Font *font_s = TTF_OpenFont("src/ressource/font/xpressive-regular.ttf", FONT_SIZE_S);
 
-    SDL_Window *window  = SDL_CreateWindow("<GAME NAME>", SDL_WINDOWPOS_UNDEFINED,
+    SDL_Window *window  = SDL_CreateWindow("<RUN WITH THE BEAT>", SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_OPENGL);
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1,
@@ -84,7 +84,7 @@ int main(void)
     SDL_Surface *normalsprite = bad->sprite;
 
     SDL_Texture *floor_texture = create_texture_from_image("src/ressource/texture/floor.png", renderer);
-    SDL_Texture *welcome_texture = create_texture_from_image("src/ressource/texture/Welcome.jpg", renderer);
+    SDL_Texture *welcome_texture = create_texture_from_image("src/ressource/texture/sound-wave.jpg", renderer);
 
     SDL_Rect floor;
     floor.x = 0;
@@ -176,7 +176,7 @@ int main(void)
                     {
 
                         puts("Need to move map");
-                        move_blocks(blocks, p->rect->w, num_blocks);
+                        move_blocks(blocks, p->rect->w*player_delta/50, num_blocks);
                     }
                 }
             }
@@ -187,13 +187,13 @@ int main(void)
         if (!playing)
         {
             display_sprite_from_texture(welcome_texture, &full_screen, renderer);
-            display_text(300, 100, "Welcome", font, renderer);
+            display_text(250, 100, "RUN WITH THE BEAT", font, renderer);
             SDL_SetRenderDrawColor(renderer, 50, 50, 150, 155);
             display_rect(300, 300, 200, 50, renderer);
             display_rect(300, 375, 200, 50, renderer);
 
-            display_text(300, 300, "Play game", font_s, renderer);
-            display_text(300, 375, "Quit", font_s, renderer);
+            display_text(340, 310, "Play game", font_s, renderer);
+            display_text(370, 385, "Quit", font_s, renderer);
 
             SDL_RenderPresent(renderer);
 
@@ -223,7 +223,7 @@ int main(void)
         }
 
         /* Set background color */
-        SDL_SetRenderDrawColor(renderer, 155, 155, 155, 255);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
         /* Render floor */
@@ -247,7 +247,9 @@ int main(void)
         /* Display life */
 
         char *life = itoa(p->life);
-        display_text(10, 0, life, font_s, renderer);
+        char *hp = "HP : ";
+        display_text(10, 0 , hp, font_s, renderer);
+        display_text(50, 0, life, font_s, renderer);
         display_text(700, 0, "Player 1", font_s, renderer);
         /* Display screen */
         SDL_RenderPresent(renderer);
