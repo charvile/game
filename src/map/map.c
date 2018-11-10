@@ -57,7 +57,7 @@ char** readmap(char *path, int *size)
     return buffy;
 } */
 
-SDL_Rect *createblklist(char *map_path, int *size)
+SDL_Rect *createblklist(char *map_path, int *size, SDL_Rect *finish)
 {
     FILE *f = fopen(map_path, "r");
 
@@ -74,8 +74,8 @@ SDL_Rect *createblklist(char *map_path, int *size)
     {
         return NULL;
     }
-    *size = atoi(buffer);
-
+    *size = atoi(buffer) - 1;
+    printf("Size is %d\n", *size);
     SDL_Rect *list = malloc(sizeof(*list) * *size);
 
     for (int i = 0; i < *size; i++)
@@ -89,16 +89,35 @@ SDL_Rect *createblklist(char *map_path, int *size)
         getline(&buffer, &s, f);
         int h = atoi(buffer);
         getline(&buffer, &s, f);
-        int type = atoi(buffer);
+        //int type = atoi(buffer);
 
 
         list[i].x = x;
         list[i].y = y;
         list[i].w = w;
         list[i].h = h;
-
-        printf("Type of block is %d\n", type);
     }
+
+        getline(&buffer, &s, f);
+        int x = atoi(buffer);
+        getline(&buffer, &s, f);
+        int y = atoi(buffer);
+        getline(&buffer, &s, f);
+        int w = atoi(buffer);
+        getline(&buffer, &s, f);
+        int h = atoi(buffer);
+        getline(&buffer, &s, f);
+
+
+
+        finish->x = x;
+        finish->y = y;
+        finish->w = w;
+        finish->h = h;
+
+        printf("Finish xy is %d;%d\n", x, y);
+        printf("Finish hw is %d;%d\n", w, h);
+
 
     fclose(f);
     return list;

@@ -20,7 +20,8 @@
 #define TIME_DELTA 100
 
 
-#define INITIAL_VERTICAL_SPEED  800
+#define INITIAL_VERTICAL_SPEED  -22
+#define INITIAL_HORIZONTAL_SPEED 10
 
 unsigned int_width(int i)
 {
@@ -91,9 +92,10 @@ int main(void)
     uint64_t last_update = SDL_GetPerformanceCounter();
 
     /* Create player and ennemy*/
-    struct player *p = initplayer(20, 450, renderer);
+    struct player *p = initplayer(00, 450, renderer);
     struct player *bad = initennemy(50,450, renderer);
-    p->speed->y = -15;
+    p->speed->y = INITIAL_VERTICAL_SPEED;
+    p->speed->x = INITIAL_HORIZONTAL_SPEED;
 
     SDL_Surface *rot = bad->sprite_mirror;
     SDL_Surface *normalsprite = bad->sprite;
@@ -101,6 +103,10 @@ int main(void)
     SDL_Texture *floor_texture = create_texture_from_image("src/ressource/texture/floor.png", renderer);
     SDL_Texture *welcome_texture = create_texture_from_image("src/ressource/texture/sound-wave.jpg", renderer);
     SDL_Texture *background_texture = create_texture_from_image("src/ressource/texture/background.png", renderer);
+    SDL_Texture *finish_texture = create_texture_from_image("src/ressource/sprit/space-lander.png", renderer);
+    SDL_Texture *victory_texture = create_texture_from_image("src/ressource/texture/victory.jpg", renderer);
+    SDL_Texture *gameover_texture = create_texture_from_image("src/ressource/texture/Gameover.png", renderer);
+
 
     SDL_Rect floor;
     floor.x = 0;
@@ -121,7 +127,10 @@ int main(void)
     hole.h = 10;
 
     int num_blocks;
-    SDL_Rect *blocks = createblklist("src/ressource/map/map1.map", &num_blocks);
+    SDL_Rect finish;
+    SDL_Rect *blocks = createblklist("src/ressource/map/map1.map", &num_blocks, &finish);
+    printf("Finish xy is %d;%d\n", finish.x, finish.y);
+    printf("Finish hw is %d;%d\n", finish.w, finish.h);
 
     //display_sprite_from_texture(background_texture, &full_screen, renderer);
 
@@ -131,6 +140,7 @@ int main(void)
 
     bool running = true;
     bool playing = false;
+    bool win = false;
     SDL_Event event;
 
     Mix_PlayMusic(backgroundSound, -1);
@@ -140,15 +150,25 @@ int main(void)
         {
             //double dt = delta_time(&last_update);
             jump(p, 1);
-            if (p->rect->y >= (floor.y - p->rect->h))
+            if (p->rect->y >= (floor.y - p->rect->h)
+                || is_on_platform(p->rect, blocks, num_blocks))
             {
                 p->is_in_jump = 0;
-                p->speed->y = -15;
+                p->speed->y = INITIAL_VERTICAL_SPEED;
 
             }
         }
+        if (p->is_going_right)
+        {
+            horizontal_move(p, p->is_going_right, 1);
+        }
+
         while (SDL_PollEvent(&event))
         {
+            if (event.type == SDL_QUIT)
+            {
+                running = false;
+            }
             if (!playing)
             {
                 if (event.type == SDL_MOUSEBUTTONUP)
@@ -168,11 +188,16 @@ int main(void)
                     }
                 }
             }
-            if (event.type == SDL_QUIT)
+            if (win)
             {
-                running = false;
+                continue;
             }
-            if (playing && event.type == SDL_KEYDOWN)
+            if (playing && event.type == SDL_KEYUP)
+            {
+                p->is_going_right = 0;
+            }
+
+            if (playing && !win && event.type == SDL_KEYDOWN)
             {
                 double player_delta =  delta_time(&last_update);
                 int key =  event.key.keysym.sym;
@@ -182,7 +207,12 @@ int main(void)
                 }
                 if (key == SDLK_LEFT)
                 {
+                    p->is_going_right = -1;
                     int offset = p->rect->w * player_delta / -TIME_DELTA;
+                    if (isblock(p->rect->x + p->rect->w, p->rect->y, &finish, 1))
+                    {
+                        win = true;
+                    }
                     if (p->pos->x <= 50)
                     {
 
@@ -194,6 +224,7 @@ int main(void)
                         p->pos->x += offset;
 
                         move_block(&hole, offset);
+                        move_block(&finish, offset);
                     }
                     else
                     {
@@ -210,19 +241,26 @@ int main(void)
 
                     }
                 }
-                else if (key == SDLK_RIGHT)
+                else if (playing && !win && key == SDLK_RIGHT)
                 {
+                    p->is_going_right = 1;
                     int offset = p->rect->w * player_delta / TIME_DELTA;
-                    if (p->rect->x > 700)
+
+                    if (isblock(p->rect->x + p->rect->w, p->rect->y, &finish, 1))
+                    {
+                        win = true;
+                    }
+                    if (p->rect->x > 600)
                     {
                         move_blocks(blocks, offset, num_blocks);
                         move_player(bad, offset);
                         move_block(&hole, offset);
+                        move_block(&finish, offset);
                         p->pos->x += offset;
                     }
                     else
                     {
-                        printf("Going right by %d\n", offset);
+                        //printf("Going right by %d\n", offset);
                         if (!isblock(p->rect->x + p->rect->w, p->rect->y, blocks, num_blocks))
                         {
                             p->rect->x += offset;
@@ -253,15 +291,33 @@ int main(void)
 
             SDL_RenderPresent(renderer);
 
+            SDL_Delay(200);
             continue;
         }
         /* Display game over screen */
         if (p->life <= 0)
         {
-            display_texture("src/ressource/texture/Gameover.png", &full_screen,
-                renderer);
+            display_sprite_from_texture(gameover_texture, &full_screen, renderer);
 
             SDL_RenderPresent(renderer);
+            SDL_Delay(200);
+            continue;
+        }
+
+        /* Display victory screen */
+        if (win)
+        {
+            display_sprite_from_texture(victory_texture, &full_screen, renderer);
+
+            display_text(250, 100, "LEVEL COMPLETED", font, renderer);
+            SDL_SetRenderDrawColor(renderer, 50, 50, 150, 155);
+            display_rect(300, 300, 200, 50, renderer);
+            display_rect(300, 375, 200, 50, renderer);
+
+            display_text(340, 310, "Next level", font_s, renderer);
+            display_text(370, 385, "Quit", font_s, renderer);
+            SDL_RenderPresent(renderer);
+            SDL_Delay(200);
             continue;
         }
 
@@ -287,7 +343,7 @@ int main(void)
         //display_texture("src/ressource/texture/floor.png", &floor, renderer);
 
         /* Display obstacles */
-        SDL_SetRenderDrawColor(renderer, 0, 0, 100, 255);
+        SDL_SetRenderDrawColor(renderer, 112, 115, 114, 255);
         SDL_RenderFillRects(renderer, blocks, num_blocks);
 
         /* Render spike*/
@@ -299,6 +355,9 @@ int main(void)
 
         /* Display ennemy */
         display_sprite_from_texture(bad->texture, bad->rect, renderer);
+
+        /* Display finish line */
+        display_sprite_from_texture(finish_texture, &finish, renderer);
 
         /* Display life */
 
@@ -317,8 +376,11 @@ int main(void)
     }
 
     /* Cleanup */
+    free(blocks);
     SDL_DestroyTexture(floor_texture);
     SDL_DestroyTexture(welcome_texture);
+    SDL_DestroyTexture(background_texture);
+    SDL_DestroyTexture(gameover_texture);
     SDL_DestroyTexture(background_texture);
     destroy_player(p);
     destroy_player(bad);

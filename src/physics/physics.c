@@ -17,6 +17,26 @@ int isblock(int x, int y , SDL_Rect *list, int size)
     return 0;
 }
 
+int is_on_platform(SDL_Rect *player, SDL_Rect *blocks, int size)
+{
+    int player_x = player->x + player->w / 2;
+    int player_y = player->y + player->h;
+    printf("Player is at x:%d|y:%d\n", player->x, player->y);
+    for (int i = 0; i < size; i++)
+    {
+        int x = blocks[i].x;
+        int y = blocks[i].y;
+        int w = blocks[i].w;
+        //int h = blocks[i].h;
+
+        if (player_x >= x && player_x <= x + w && player_y >= y && player_y <= y + 20)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 double delta_time(uint64_t *last_update_time)
 {
     double frec = SDL_GetPerformanceFrequency();
