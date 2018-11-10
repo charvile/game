@@ -16,4 +16,8 @@ void display_text(int x, int y, char *text, TTF_Font *font, SDL_Renderer *render
 
 SDL_Texture *create_texture_from_image(const char *image_path, SDL_Renderer *renderer);
 
+void display_rect(int x, int y, int w, int h, SDL_Renderer *renderer);
+
+void move_blocks(SDL_Rect *blocks, int offset, int size);
+
 #endif /* ! DISPLAY_H */

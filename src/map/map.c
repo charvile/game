@@ -4,18 +4,20 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
+
 #define BLKW 50;
 #define BLKH 50;
 
-struct blk
-{
-    int w;
-    int h;
-    int type;
-    SDL_Rect *mesh;
-};
+//struct blk
+//{
+    //int w;
+    //int h;
+    //int type;
+    //SDL_Rect *mesh;
+//};
 
-char** readmap(char *path, int *w, int *h)
+/*
+char** readmap(char *path, int *size)
 {
     FILE *fd = fopen(path, "r");
 
@@ -53,29 +55,56 @@ char** readmap(char *path, int *w, int *h)
     free(buffer);
     fclose(fd);
     return buffy;
-}
+} */
 
-struct blk *createblklist(char **map, int w, int h)
+SDL_Rect *createblklist(char *map_path, int *size)
 {
-    struct blk *list = malloc(sizeof(struct blk)*w*h);
-    for(int i = 0; i < h; i++)
+    FILE *f = fopen(map_path, "r");
+
+    if (!f)
     {
-        for( int j = 0; j < w; j++)
-        {
-            list[i + j*w].mesh = malloc(sizeof(SDL_Rect));
-            list[i + j*w].h = h;
-            list[i + j*w].w = w;
-            list[i + j*w].mesh->x = i;
-            list[i + j*w].mesh->y = j;
-            list[i + j*w].mesh->w = BLKW;
-            list[i + j*w].mesh->h = BLKH;
-            list[i + j*w].type = map[i][j];
-        }
+        puts("Cannot open map file");
     }
+
+    char *buffer = NULL;
+    size_t s = 10;
+    int res = getline(&buffer, &s, f);
+
+    if (res == -1)
+    {
+        return NULL;
+    }
+    *size = atoi(buffer);
+
+    SDL_Rect *list = malloc(sizeof(*list) * *size);
+
+    for (int i = 0; i < *size; i++)
+    {
+        getline(&buffer, &s, f);
+        int x = atoi(buffer);
+        getline(&buffer, &s, f);
+        int y = atoi(buffer);
+        getline(&buffer, &s, f);
+        int w = atoi(buffer);
+        getline(&buffer, &s, f);
+        int h = atoi(buffer);
+        getline(&buffer, &s, f);
+        int type = atoi(buffer);
+
+
+        list[i].x = x;
+        list[i].y = y;
+        list[i].w = w;
+        list[i].h = h;
+
+        printf("Type of block is %d\n", type);
+    }
+
+    fclose(f);
     return list;
 }
 
-void destroymat(char **map, int w)
+/*void destroymat(char **map, int w)
 {
     for(int i = 0; i < w; i++)
     {
@@ -96,9 +125,9 @@ void destroyblk(struct blk *list)
         }
     }
     free(list);
-}
+} */
 
-int main(void)
+/*int main(void)
 {
     int h = 0;
     int w = 0;
@@ -112,8 +141,7 @@ int main(void)
         return 1;
     }
     return 0;
-}
-/*void makeblk(char type, int x, int y, SDL_Renderer *rend)
-  {
+}*/
+/*void makeblk(char type, int x, int y, SDL_Renderer *{
   return;
   }*/
