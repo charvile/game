@@ -1,4 +1,5 @@
 #include "entity/include_entity/entity.h"
+#include "global.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,11 +30,11 @@ int main(void)
     floor.w = 800;
     floor.h = 100;
 
-    SDL_Rect blocks[3];
-    blocks[0].x = 65;
-    blocks[0].y = 89;
+    SDL_Rect blocks[4];
+    blocks[0].x = 500;
+    blocks[0].y = 400;
     blocks[0].w = 100;
-    blocks[0].h = 35;
+    blocks[0].h = 350;
 
     blocks[1].x = 165;
     blocks[1].y = 289;
@@ -44,6 +45,11 @@ int main(void)
     blocks[2].y = 289;
     blocks[2].w = 100;
     blocks[2].h = 35;
+
+    blocks[3].x = 65;
+    blocks[3].y = 89;
+    blocks[3].w = 100;
+    blocks[3].h = 35;
 
     bool running = true;
     SDL_Event event;
@@ -60,11 +66,17 @@ int main(void)
                 int key =  event.key.keysym.sym;
                 if (key == SDLK_LEFT)
                 {
-                    p->rect->x -= p->rect->w / 2;
+                    if (!isblock(p->rect->x - p->rect->w, p->rect->y, blocks, 4))
+                    {
+                        p->rect->x -= p->rect->w;
+                    }
                 }
                 else if (key == SDLK_RIGHT)
                 {
-                    p->rect->x += p->rect->w / 2;
+                    if (!isblock(p->rect->x + p->rect->w, p->rect->y, blocks, 4))
+                    {
+                        p->rect->x += p->rect->w;
+                    }
                 }
             }
         }
@@ -79,7 +91,7 @@ int main(void)
 
         /* Render obstacles */
         SDL_SetRenderDrawColor(renderer, 0, 0, 100, 255);
-        SDL_RenderFillRects(renderer, blocks, 3);
+        SDL_RenderFillRects(renderer, blocks, 4);
 
         //SDL_RenderClear(renderer);
 
