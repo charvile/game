@@ -16,3 +16,13 @@ int isblock(int x, int y , SDL_Rect *list, int size)
     }
     return 0;
 }
+
+double delta_time(uint64_t *last_update_time)
+{
+    double frec = SDL_GetPerformanceFrequency();
+    uint64_t last = *last_update_time;
+    uint64_t now = SDL_GetPerformanceCounter();
+
+    *(last_update_time) = now;
+    return (now - last)* 1000 / frec;
+}

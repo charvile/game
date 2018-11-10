@@ -8,6 +8,12 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+struct vec2
+{
+    int x;
+    int y;
+};
+
 int main(void)
 {
     int height = 600;
@@ -16,13 +22,18 @@ int main(void)
     IMG_Init(IMG_INIT_JPG);
 
     SDL_Window *window  = SDL_CreateWindow("<GAME NAME>", SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
+            SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1,
-        SDL_RENDERER_ACCELERATED);
+            SDL_RENDERER_ACCELERATED);
 
+    uint64_t last_update = SDL_GetPerformanceCounter();
     /* Create player*/
     struct player *p = initplayer(20, 450);
+    struct player *bad = initennemy(50,450);
+
+    SDL_Surface *rot = bad->sprite_mirror;
+    SDL_Surface *normalsprite = bad->sprite;
 
     SDL_Rect floor;
     floor.x = 0;
@@ -51,6 +62,9 @@ int main(void)
     blocks[3].w = 100;
     blocks[3].h = 35;
 
+    int subroutmaker = 0;
+    int isrot = 0;
+
     bool running = true;
     SDL_Event event;
     while (running)
@@ -70,6 +84,10 @@ int main(void)
                     {
                         p->rect->x -= p->rect->w;
                     }
+                    if (! isHit(bad, p->rect->x - p->rect->w, p->rect->y))
+                    {
+                        p->life -= 20;
+                    }
                 }
                 else if (key == SDLK_RIGHT)
                 {
@@ -77,9 +95,27 @@ int main(void)
                     {
                         p->rect->x += p->rect->w;
                     }
+                    if (! isHit(bad, p->rect->x + p->rect->w, p->rect->y))
+                    {
+                        p->life -= 20;
+                    }
                 }
             }
         }
+        if (p->life <= 0)
+        {
+            printf("tmortlol \n");
+        }
+        double delta = delta_time(&last_update);
+        struct vec2 sub = subroutine(bad, &subroutmaker, isrot, delta);
+        bad->rect->x = sub.y;
+        isrot = sub.x;
+        if (sub.x == 1)
+        {
+            bad->sprite = normalsprite;
+        }
+        else
+            bad->sprite = rot;
 
         /* Set background color */
         SDL_SetRenderDrawColor(renderer, 155, 155, 155, 255);
@@ -106,9 +142,22 @@ int main(void)
         SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
         SDL_RenderCopy(renderer, texture, &r1, p->rect);
+
+        /* create ennemy */
+        SDL_Rect r2;
+        r2.x = 0;
+        r2.y = 0;
+        r2.w = 50;
+        r2.h = 50;
+        SDL_Surface *surface2 = bad->sprite;
+        SDL_Texture *texture2 = SDL_CreateTextureFromSurface(renderer, surface2);
+
+        SDL_RenderCopy(renderer, texture2, &r2, bad->rect);
+
         SDL_RenderPresent(renderer);
         SDL_RenderClear(renderer);
         SDL_Delay(25);
+
     }
 
     SDL_DestroyWindow(window);

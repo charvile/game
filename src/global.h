@@ -5,5 +5,6 @@
 #include <SDL2/SDL_image.h>
 
 int isblock(int x, int y , SDL_Rect *list, int size);
+double delta_time(uint64_t *last_update_time);
 
 #endif /* ! GLOBAL_H */
