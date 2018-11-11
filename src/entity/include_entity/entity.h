@@ -15,6 +15,7 @@ struct player
     SDL_Surface *sprite;
     SDL_Surface *sprite_mirror;
     SDL_Texture *texture;
+    SDL_Texture *texture_mirror;
     SDL_Rect *rect;
     struct vec2 *speed;
     struct vec2 *pos;

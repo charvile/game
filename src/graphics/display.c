@@ -29,10 +29,9 @@ SDL_Texture *create_texture_from_image(const char *image_path, SDL_Renderer *ren
 
 }
 
-void display_text(int x, int y, char *text, TTF_Font *font, SDL_Renderer *renderer)
+void display_text(int x, int y, char *text, TTF_Font *font, SDL_Renderer *renderer, SDL_Color *color)
 {
-    SDL_Color white = {255, 255, 255, 0};
-    SDL_Surface *text_surface = TTF_RenderText_Solid(font, text, white);
+    SDL_Surface *text_surface = TTF_RenderText_Solid(font, text, *color);
     SDL_Texture *text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
     int text_height;
     int text_width;
@@ -51,7 +50,7 @@ void display_rect(int x, int y, int w, int h, SDL_Renderer *renderer)
 
 void move_blocks(SDL_Rect *blocks, int offset, int size)
 {
-    for (int i =0; i < size; i++)
+    for (int i = 0; i < size; i++)
     {
         blocks[i].x -= offset;
     }

@@ -29,12 +29,12 @@ int main(void)
     TTF_Init();
 
     int flags = MIX_INIT_OGG | MIX_INIT_MP3;
-    Mix_Init(flags);
-    //if (initted & flags != flags)
-    //{
-        //printf("Mix_Init: %s\n", Mix_GetError());
-        //exit(2);
-    //}
+    int initted = Mix_Init(flags);
+    if (initted & flags != flags)
+    {
+        printf("Mix_Init: %s\n", Mix_GetError());
+        exit(2);
+    }
     Mix_OpenAudio(MIX_DEFAULT_FREQUENCY*2, MIX_DEFAULT_FORMAT, 2, 1024);
 
     Mix_Music *backgroundSound = Mix_LoadMUS("src/ressource/sound/sound.mp3");
@@ -57,7 +57,7 @@ int main(void)
     /* Create player and ennemy*/
     struct player *p = initplayer(20, 450, renderer);
     struct player *bad = initennemy(50,450, renderer);
-    //struct player *bad_2 = initennemy(320,450, renderer);
+    struct player *bad_2 = initennemy(320,450, renderer);
     p->speed->y = INITIAL_VERTICAL_SPEED;
     p->speed->x = INITIAL_HORIZONTAL_SPEED;
 
@@ -70,24 +70,24 @@ int main(void)
     int score = 0;
 
     char *int_buffer = malloc(10);
-    printf("0 is %s\n", itoa(1, int_buffer));
 
     SDL_Texture *rot = SDL_CreateTextureFromSurface(renderer, bad->sprite_mirror);
     SDL_Texture *normal_sprite = SDL_CreateTextureFromSurface(renderer, bad->sprite);
 
     SDL_Texture *floor_texture = create_texture_from_image("src/ressource/texture/floor.png", renderer);
     SDL_Texture *welcome_texture = create_texture_from_image("src/ressource/texture/Welcome_2.jpg", renderer);
-    SDL_Texture *background_texture = create_texture_from_image("src/ressource/texture/planet1.png", renderer);
+    SDL_Texture *background_texture = create_texture_from_image("src/ressource/texture/background.png", renderer);
     SDL_Texture *finish_texture = create_texture_from_image("src/ressource/sprit/portal.png", renderer);
     SDL_Texture *victory_texture = create_texture_from_image("src/ressource/texture/victory.jpg", renderer);
     SDL_Texture *gameover_texture = create_texture_from_image("src/ressource/texture/Gameover.jpg", renderer);
-    SDL_Texture *bonus_texture = create_texture_from_image("src/ressource/sprit/bonus.png", renderer);
-    SDL_Texture *spikes_texture = create_texture_from_image("src/ressource/sprit/mortyboulderdown_2.png", renderer);
+    SDL_Texture *bonus_texture = create_texture_from_image("src/ressource/sprit/bonus.jpg", renderer);
 
 
     SDL_Rect floor = { 0, 500, 800, 500 };
 
     SDL_Rect full_screen = { 0, 0, 800, 600 };
+
+    SDL_Rect hole = { 400, 490, 50, 10 };
 
 
     SDL_Color white = { 255, 255, 255, 255 };
@@ -96,10 +96,9 @@ int main(void)
     int num_blocks;
     SDL_Rect finish;
     SDL_Rect *blocks = createblklist("src/ressource/map/map1.map", &num_blocks, &finish);
-    SDL_Rect *bonuses = createbonuslist(8);
-    int num_spikes;
-    SDL_Rect *spikes = create_spikes(blocks, num_blocks, &num_spikes);
+    SDL_Rect *bonuses = createbonuslist(5);
 
+    //display_sprite_from_texture(background_texture, &full_screen, renderer);
 
 
     int subroutmaker = 0;
@@ -131,15 +130,6 @@ game_start:
             p->is_in_jump = 1;
             p->speed->y = 0;
         }
-        if (found_bonus(p->rect->x + p->rect->w, p->rect->y, bonuses, 8))
-        {
-            score++;
-        }
-         if (found_bonus(p->rect->x + p->rect->w, p->rect->y, spikes, num_spikes ))
-        {
-            p->life -= 10;
-        }
-
         if (p->is_in_jump)
         {
             //double dt = delta_time(&last_update);
@@ -220,13 +210,11 @@ game_start:
                     int y = event.button.y;
 
                     if (x >= 300 && x <= 500 && y >= 300 && y <= 350)
-        SDL_RenderFillRects(renderer, blocks, num_blocks);
                     {
                         level++;
                         win = false;
                         goto game_start;
                         continue;
-        SDL_RenderFillRects(renderer, blocks, num_blocks);
                     }
                     if (x >= 300 && x <= 500 && y >= 375 && y <= 425)
                     {
@@ -260,11 +248,11 @@ game_start:
                     if (p->rect->x < 650 && p->rect->x > 100)
                     {
                         move_blocks(blocks, offset, num_blocks);
-                        move_blocks(spikes, offset, num_spikes);
-                        move_blocks(bonuses, offset, 8);
+                        move_blocks(bonuses, offset, 5);
                         move_player(bad, offset);
                         p->pos->x += offset * 2;
 
+                        move_block(&hole, offset);
                         move_block(&finish, offset);
                     }
                     else if(p->rect->x > 0)
@@ -291,9 +279,9 @@ game_start:
                     if (p->rect->x > 100)
                     {
                         move_blocks(blocks, offset, num_blocks);
-                        move_blocks(bonuses, offset, 8);
-                        move_blocks(spikes, offset, num_spikes);
+                        move_blocks(bonuses, offset, 5);
                         move_player(bad, offset);
+                        move_block(&hole, offset);
                         move_block(&finish, offset);
                         p->pos->x += offset;
                     }
@@ -396,7 +384,6 @@ game_start:
         /* Set background color */
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-        display_sprite_from_texture(background_texture, &full_screen, renderer);
 
         /* Render floor */
         display_sprite_from_texture(floor_texture, &floor, renderer);
@@ -406,15 +393,15 @@ game_start:
         SDL_SetRenderDrawColor(renderer, 112, 115, 114, 255);
         SDL_RenderFillRects(renderer, blocks, num_blocks);
 
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < 5; i++)
         {
             display_sprite_from_texture(bonus_texture, &bonuses[i], renderer);
         }
+        //SDL_RenderFillRects(renderer, bonuses, num_blocks);
 
-        for (int i = 0; i < num_spikes; i++)
-        {
-            display_sprite_from_texture(spikes_texture, &spikes[i], renderer);
-        }
+        /* Render spike*/
+        display_sprite_from_texture(floor_texture, &hole, renderer);
+        //display_sprite("src/ressource/texture/floor.png", &hole, renderer);
 
        /* Display player */
         if (is_rot_player)
@@ -438,8 +425,7 @@ game_start:
         char *hp = "HP : ";
         display_text(10, 0 , hp, font_s, renderer, &white);
         display_text(50, 0, life, font_s, renderer, &white);
-        display_text(650, 0, "Player 1 : ", font_s, renderer, &white);
-        display_text(750, 0, itoa(score, int_buffer), font_s, renderer, &white);
+        display_text(700, 0, "Player 1", font_s, renderer, &white);
 
         /* Display timer */
         char *char_timer = "Time left : ";
@@ -460,11 +446,11 @@ game_start:
     /* Cleanup */
     free(blocks);
     free(int_buffer);
-    free(bonuses);
     SDL_DestroyTexture(floor_texture);
     SDL_DestroyTexture(welcome_texture);
     SDL_DestroyTexture(background_texture);
     SDL_DestroyTexture(gameover_texture);
+    SDL_DestroyTexture(background_texture);
     destroy_player(p);
     destroy_player(bad);
     TTF_CloseFont(font);
@@ -473,7 +459,7 @@ game_start:
     Mix_FreeMusic(backgroundSound);
     Mix_FreeChunk(applause);
     Mix_FreeChunk(airplane);
-    Mix_CloseAudio();
+    Mix_CloseAudio;
     Mix_Quit();
 
     SDL_DestroyWindow(window);

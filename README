@@ -1,1 +1,120 @@
-README
+Morty the Mortal
+================
+
+This program is a Mario-like platformer video game written in C and based on
+SDL2;
+
+It was written by Andre Debuisne, Sabri Zennoud and Eric Charvillat in the
+course of a "rush" at Epita from 9pm on Friday, November 9th, 2018 to 11:42am
+on Sunday, November 11, 2018.
+
+
+PROGRAM EXECUTION
+=================
+
+The directory containing this README provides a Makefile which handles all the
+steps necessary to create an executable.To execute the program, please run the
+command; "make run".
+This will cause a window to open with a user menu.
+
+
+GAME DESCRIPTION
+===============
+
+This game is similar in its general format to the Mario video game. The user
+controls a single character who tries to stay away from danger while
+collecting bonuses. The goal is to reach a destination without dying and within
+a preset amount of time.
+
+On the top left of the game window, 2 pieces of information are displayed: HP,
+which stands for Health Points, and a timer which counts backward to zero. The
+player dies if its HP count falls to zero. Upon termination of a current sesion
+the player has the option to continue of quit.
+
+
+================================================================================
+================================================================================
+
+FEATURES
+=======
+* Environment -> map loaded via a .map file
+* Character -> run left and right, jump up
+* Dangers -> spikes and ennemies
+* Title Screen -> navigation menus
+* Sound -> background music and special effets
+* Animation -> gravity, jump, moving ennemy and player mirroring
+* Scrolling -> scroll left and right with the map
+* Randomization -> randomly generate spikes and bonuses
+
+
+The environment
+---------------
+Upon execution of the program, a map is loaded which allows the program to
+display the "landscape" of the game, which consists mainly of ostacles and
+bonus objects. Those are fixed in space. In addition, there is one or several
+ennemies moving around the "pladscape" and which take away Health Points from
+the Player's avatar is touched.
+
+The character
+-------------
+The character controlled by the player is able to move left and right, using
+the arrow keys on the keyboard, either in a step_by_step way or continuously,
+which is the case when the player keeps the left or right arrow key pressed
+down.
+
+The dangers
+-----------
+The main risk for the avatar is to collide with an ennemy, which results in the
+loss of HP's. In addition, there are spikes which will have a similar impact.
+
+Title Screen
+------------
+Upon execution of the progrtam, a menu appears with a Title Screen to welcome
+the user.
+
+Sound/Music
+-----------
+There are 2 types of audio. There is background music which plays continuously.
+There are also what we call "chunks" of music which get triggered based on game
+action. The score and a timer are located on the trop_left of the game window.
+In our case, the background music is an MP3 file, while the chunks typically
+are in the .wav format.
+
+Animation
+---------
+The avatar and at least one ennemy of the avatar aere animate. The player does
+control the ennemy in any way.
+
+Movements
+--------
+The avatar can move horizontally but can also jump and therefore fall. THe
+movements are controlled using the arrow keps. The movements can be combined,
+i.e an avatar can jump and move laterally in the aire at the same time.
+
+Scrolling
+---------
+Because the window is of limited size and to try to maximize the
+centralisatrion of the avatar on the window, both the avatar and the landscape
+can move. Based on the position of the avatar, the landscape can remain fixed
+or move in the opposite direction of the movement of the avatar.
+
+Jumps
+-----
+The avatar can jump up. It will jave an initial vertical velocity./It can also
+jump down when it is standing or moving on a platform above the ground.
+
+Gravity
+-------
+The avatar is subject to gravity. After it jumps up or down, gravity will
+decrease its upward velocity until it turns negative, until is either reaches
+a platform or the ground.
+
+Randomization
+-------------
+Some parts of the creation of the landscape are radomized. The bonuses are
+placed in space at the start of the game until srand() and rand(). srand() uses
+the function SDL_GetTicks as its seed.
+
+********************************************************************************
+We hope you will enjoy playing the game, in particular the way the avatar
+responds to gravity and user inputs while in the air after a jumpo !

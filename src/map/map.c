@@ -2,60 +2,12 @@
 #include "map.h"
 #include "../global.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 #define BLKW 50;
 #define BLKH 50;
-
-//struct blk
-//{
-    //int w;
-    //int h;
-    //int type;
-    //SDL_Rect *mesh;
-//};
-
-/*
-char** readmap(char *path, int *size)
-{
-    FILE *fd = fopen(path, "r");
-
-    char *bufferh = NULL;
-    size_t len = 5;
-    ssize_t test = getline(&bufferh, &len, fd);
-    int sizeh = atoi(bufferh);
-    free(bufferh);
-    if (test == -1)
-        return NULL;
-
-    char *bufferw = NULL;
-    ssize_t test2 = getline(&bufferw, &len, fd);
-    int sizew = atoi(bufferw);
-    free(bufferw);
-    if (test2 == -1)
-        return NULL;
-
-    ssize_t err = 0;
-    int x = 0;
-    char *buffer = NULL;
-    size_t maxlen = 1024;
-    char **buffy = malloc(sizeof(void*)*sizeh);
-    while((err = getline(&buffer, &maxlen,fd)) != -1)
-    {
-        buffy[x] = malloc(sizeof(char)*sizew);
-        for(int y = 0 ; buffer[y] != '\n'; y++)
-        {
-            buffy[x][y] = buffer[y];
-        }
-        x++;
-    }
-    *w = sizew;
-    *h = sizeh;
-    free(buffer);
-    fclose(fd);
-    return buffy;
-} */
 
 SDL_Rect *createblklist(char *map_path, int *size, SDL_Rect *finish)
 {
@@ -123,44 +75,51 @@ SDL_Rect *createblklist(char *map_path, int *size, SDL_Rect *finish)
     return list;
 }
 
-/*void destroymat(char **map, int w)
+SDL_Rect *createbonuslist(int size)
 {
-    for(int i = 0; i < w; i++)
+    const float b_width = 25;
+    const float b_height = 25;
+    const float min_x = 0;
+    const float max_x = 1500;
+    const float min_y = 100;
+    const float max_y = 450;
+    int timer = SDL_GetTicks();
+    srand(timer);
+
+    SDL_Rect *list = malloc(sizeof(*list) * size);
+
+    for (int i = 0; i < size; i++)
     {
-        free(map[i]);
+        list[i].x = min_x + (float) rand()/(float) RAND_MAX * (max_x - min_x);
+        list[i].y = min_y + (float) rand()/(float) RAND_MAX * (max_y - min_y);
+        list[i].w = b_width;
+        list[i].h = b_height;
+        printf("Element %d:%d %d\n", i, list[i].x, list[i].y);
     }
-    free(map);
+    return list;
 }
 
-void destroyblk(struct blk *list)
+SDL_Rect *create_spikes(SDL_Rect *blocks, int size, int *spike_num)
 {
-    int w = list[0].w;
-    int h = list[0].h;
-    for(int i = 0; i < h; i++)
+    const float b_width = 25;
+    const float b_height = 25;
+    int timer = SDL_GetTicks();
+    srand(timer);
+
+    SDL_Rect *list = malloc(sizeof(*list) * size);
+
+    int counter = 0;
+    for (int i = 0; i < size; i++)
     {
-        for(int j = 0; j < w ; j++)
+        if (rand())
         {
-            free(list[i+j*w].mesh);
+            list[counter].x = blocks[i].x + (float) rand()/(float) RAND_MAX * (list[counter].w);
+            list[counter].y = blocks[i].y - b_height;
+            list[counter].h = b_height;
+            list[counter].w = b_width;
+            counter++;
         }
     }
-    free(list);
-} */
-
-/*int main(void)
-{
-    int h = 0;
-    int w = 0;
-    char** map = readmap("test",&w,&h);
-    printf("%c\n",map[0][0]);
-    struct blk *list = createblklist(map, w, h);
-    destroymat(map, w);
-    if (list != NULL)
-    {
-        destroyblk(list);
-        return 1;
-    }
-    return 0;
-}*/
-/*void makeblk(char type, int x, int y, SDL_Renderer *{
-  return;
-  }*/
+    *spike_num = counter;
+    return list;
+}

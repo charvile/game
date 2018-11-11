@@ -3,6 +3,11 @@
 unsigned int_width(int i)
 {
     unsigned res = 0;
+
+    if (!i)
+    {
+        return 1;
+    }
     if (i < 1)
     {
         res = 1;
@@ -17,14 +22,19 @@ unsigned int_width(int i)
 
     return res;
 }
-char *itoa(int x)
+char *itoa(int x, char *res)
 {
-    char *res = malloc(10);
     int width = int_width(x);
 
     int cursor = width - 1;
 
-    while(x > 0)
+    if (!x)
+    {
+        res = "0\0";
+        return res;
+    }
+
+    while(x != 0)
     {
         res[cursor--] = x % 10 + '0';
         x /= 10;
