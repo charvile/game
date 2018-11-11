@@ -38,8 +38,9 @@ int main(void)
     Mix_OpenAudio(MIX_DEFAULT_FREQUENCY * 2, MIX_DEFAULT_FORMAT, 2, 1024);
 
     Mix_Music *backgroundSound = Mix_LoadMUS("src/ressource/sound/sound.mp3");
-    Mix_Chunk *applause = Mix_LoadWAV("src/ressource/sound/applause_y.wav");
-    Mix_Chunk *airplane = Mix_LoadWAV("src/ressource/sound/airplane_chime_x.wav");
+    Mix_Chunk *bonus_sound = Mix_LoadWAV("src/ressource/sound/bonus.wav");
+    Mix_Chunk *hit_sound = Mix_LoadWAV("src/ressource/sound/hit.wav");
+    Mix_Chunk *jump_sound = Mix_LoadWAV("src/ressource/sound/jump.wav");
 
 
     TTF_Font *font = TTF_OpenFont("src/ressource/font/xpressive-regular.ttf", FONT_SIZE);
@@ -61,7 +62,7 @@ int main(void)
     p->speed->x = INITIAL_HORIZONTAL_SPEED;
 
     /* Initialize timer */
-    int TIME = 60;
+    int TIME = 30;
     int int_timer = TIME;
 
     /* Initialize level and score */
@@ -69,7 +70,6 @@ int main(void)
     int score = 0;
 
     char *int_buffer = malloc(10);
-    printf("0 is %s\n", itoa(1, int_buffer));
 
     SDL_Texture *rot = SDL_CreateTextureFromSurface(renderer, bad->sprite_mirror);
     SDL_Texture *normal_sprite = SDL_CreateTextureFromSurface(renderer, bad->sprite);
@@ -99,6 +99,7 @@ int main(void)
     SDL_Rect *bonuses = createbonuslist(8);
     int num_spikes;
     SDL_Rect *spikes = create_spikes(blocks, num_blocks, &num_spikes);
+    printf("There are %d spikes\n", num_spikes);
 
 
 
@@ -127,22 +128,22 @@ game_start:
         }
         if (!p->is_in_jump && !is_on_platform(p->rect, blocks, num_blocks))
         {
-            puts("Should fall");
             p->is_in_jump = 1;
             p->speed->y = 0;
         }
         if (found_bonus(p->rect, bonuses, 8))
         {
+            Mix_PlayChannel(-1, bonus_sound, 0);
             score++;
         }
          if (found_bonus(p->rect, spikes, num_spikes))
         {
-            p->life -= 10;
+            p->life -= 50;
         }
         if (isblock(p->rect, bad->rect, 1))
         {
-            Mix_PlayChannel(-1, applause, 0);
-            p->life -= 10;
+            Mix_PlayChannel(-1, hit_sound, 0);
+            p->life -= 25;
         }
 
         if (p->is_in_jump)
@@ -196,12 +197,14 @@ game_start:
 
                     if (x >= 300 && x <= 500 && y >= 380 && y <= 430)
                     {
+                        puts("Restarting");
                         win = false;
                         goto game_start;
                         continue;
                     }
                     if (x >= 300 && x <= 500 && y >= 450 && y <= 500)
                     {
+                        puts("Going back to menu");
                         playing = false;
                         win = false;
                         goto game_start;
@@ -247,6 +250,7 @@ game_start:
                 int key =  event.key.keysym.sym;
                 if (key == SDLK_UP)
                 {
+                    Mix_PlayChannel(-1, jump_sound, 0);
                     p->is_in_jump = 1;
                 }
                 if (key == SDLK_LEFT)
@@ -435,8 +439,9 @@ game_start:
         char *hp = "HP : ";
         display_text(10, 0 , hp, font_s, renderer, &white);
         display_text(50, 0, life, font_s, renderer, &white);
-        display_text(650, 0, "Player 1 : ", font_s, renderer, &white);
-        display_text(750, 0, itoa(score, int_buffer), font_s, renderer, &white);
+        display_text(630, 0, "Player 1 : ", font_s, renderer, &white);
+        display_text(730, 0, itoa(score, int_buffer), font_s, renderer, &white);
+        display_text(750, 0, "/8", font_s, renderer, &white);
 
         /* Display timer */
         char *char_timer = "Time left : ";
@@ -468,8 +473,9 @@ game_start:
     TTF_CloseFont(font_s);
     TTF_Quit();
     Mix_FreeMusic(backgroundSound);
-    Mix_FreeChunk(applause);
-    Mix_FreeChunk(airplane);
+    Mix_FreeChunk(bonus_sound);
+    Mix_FreeChunk(hit_sound);
+    Mix_FreeChunk(jump_sound);
     Mix_CloseAudio();
     Mix_Quit();
 

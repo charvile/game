@@ -94,7 +94,6 @@ SDL_Rect *createbonuslist(int size)
         list[i].y = min_y + (float) rand()/(float) RAND_MAX * (max_y - min_y);
         list[i].w = b_width;
         list[i].h = b_height;
-        printf("Element %d:%d %d\n", i, list[i].x, list[i].y);
     }
     return list;
 }
@@ -111,9 +110,10 @@ SDL_Rect *create_spikes(SDL_Rect *blocks, int size, int *spike_num)
     int counter = 0;
     for (int i = 0; i < size; i++)
     {
-        if (rand())
+        int j = rand() % 2;
+        if (j == 1)
         {
-            list[counter].x = blocks[i].x + (float) rand()/(float) RAND_MAX * (list[counter].w);
+            list[counter].x = blocks[i].x;// + (float) rand()/(float) RAND_MAX * (list[counter].w);
             list[counter].y = blocks[i].y - b_height;
             list[counter].h = b_height;
             list[counter].w = b_width;
