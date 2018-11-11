@@ -7,7 +7,7 @@
 struct player *initennemy(int x, int y, SDL_Renderer *renderer)
 {
     struct player *en = malloc(sizeof(struct player));
-    en->sprite = IMG_Load("src/ressource/sprit/ennemy_2.png");
+    en->sprite = IMG_Load("src/ressource/sprit/ennemy.png");
     en->sprite_mirror = IMG_Load("src/ressource/sprit/ennemy_mirror.png");
     en->texture = SDL_CreateTextureFromSurface(renderer, en->sprite);
 

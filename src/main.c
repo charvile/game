@@ -67,8 +67,8 @@ int main(void)
     /* Initialize timer */
     int TIME = 60;
     int int_timer = TIME;
-    SDL_Surface *rot = bad->sprite_mirror;
-    SDL_Surface *normalsprite = bad->sprite;
+    SDL_Texture *rot = SDL_CreateTextureFromSurface(renderer, bad->sprite_mirror);
+    SDL_Texture *normal_sprite = SDL_CreateTextureFromSurface(renderer, bad->sprite);
 
     SDL_Texture *floor_texture = create_texture_from_image("src/ressource/texture/floor.png", renderer);
     SDL_Texture *welcome_texture = create_texture_from_image("src/ressource/texture/Welcome_2.jpg", renderer);
@@ -102,6 +102,7 @@ int main(void)
     Mix_PlayMusic(backgroundSound, -1);
     while (running)
     {
+        printf("Player pos : %d;%d\n", p->rect->x, p->rect->y);
         if (p->is_in_jump)
         {
             //double dt = delta_time(&last_update);
@@ -114,7 +115,7 @@ int main(void)
 
             }
         }
-        if (p->is_going_right)
+        if (p->is_going_right && p->rect->x > 100 && p->rect->x < 650)
         {
             horizontal_move(p, p->is_going_right, 1);
         }
@@ -171,18 +172,17 @@ int main(void)
                     }
                     if (p->pos->x <= 50)
                     {
-
                     }
-                    else if (p->rect->x < 300)
+                    if (p->rect->x < 650 && p->rect->x > 100)
                     {
-                        move_blocks(blocks, offset * 2, num_blocks);
-                        move_player(bad, offset * 2);
-                        //p->pos->x += offset * 2;
+                        move_blocks(blocks, offset, num_blocks);
+                        move_player(bad, offset);
+                        p->pos->x += offset * 2;
 
-                        move_block(&hole, offset * 2);
-                        move_block(&finish, offset * 2);
+                        move_block(&hole, offset);
+                        move_block(&finish, offset);
                     }
-                    else
+                    else if(p->rect->x > 0)
                     {
                         if (!isblock(p->rect->x - p->rect->w, p->rect->y, blocks, num_blocks))
                         {
@@ -206,18 +206,16 @@ int main(void)
                     {
                         win = true;
                     }
-                    if (p->rect->x > 400)
+                    if (p->rect->x > 100)
                     {
-                        puts("Move blocks to the right");
-                        move_blocks(blocks, offset * 2, num_blocks);
-                        move_player(bad, offset * 2);
-                        move_block(&hole, offset * 2);
-                        move_block(&finish, offset * 2);
-                        //p->pos->x += offset * 2;
+                        move_blocks(blocks, offset, num_blocks);
+                        move_player(bad, offset);
+                        move_block(&hole, offset);
+                        move_block(&finish, offset);
+                        p->pos->x += offset;
                     }
                     else
                     {
-                        printf("Going right by %d\n", offset);
                         if (!isblock(p->rect->x + p->rect->w, p->rect->y, blocks, num_blocks))
                         {
                             p->rect->x += offset;
@@ -303,11 +301,11 @@ int main(void)
         isrot = sub.x;
         if (sub.x == 1)
         {
-            bad->sprite = normalsprite;
+            bad->texture = normal_sprite;
         }
         else
         {
-            bad->sprite = rot;
+            bad->texture = rot;
         }
 
         /* Set background color */
