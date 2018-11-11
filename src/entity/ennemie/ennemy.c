@@ -7,15 +7,15 @@
 struct player *initennemy(int x, int y, SDL_Renderer *renderer)
 {
     struct player *en = malloc(sizeof(struct player));
-    en->sprite = IMG_Load("src/ressource/sprit/ennemy.png");
-    en->sprite_mirror = IMG_Load("src/ressource/sprit/ennemy_mirror.png");
+    en->sprite = IMG_Load("src/ressource/sprit/ennemy_mirror.png");
+    en->sprite_mirror = IMG_Load("src/ressource/sprit/ennemy.png");
     en->texture = SDL_CreateTextureFromSurface(renderer, en->sprite);
 
     en->rect = malloc(sizeof(SDL_Rect));
     en->rect->x = x;
     en->rect->y = y;
     en->rect->w = WIDTH;
-    en->rect->h = HEIGHT;
+    en->rect->h = 65;
 
     en->speed = malloc(sizeof(struct vec2));
     en->speed->x = 0;
@@ -29,7 +29,7 @@ struct vec2 subroutine(struct player *bad, int *i, int rot, double delta)
     struct vec2 sub;
     sub.x = rot;
     sub.y = bad->rect->x;
-    int move = bad->rect->w*(delta/1000);
+    int move = bad->rect->w*(delta/2000) * 4;
     if (rot == 1)
     {
         if (*i == 30)

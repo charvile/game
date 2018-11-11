@@ -1,14 +1,16 @@
 #include "../global.h"
 
-int isblock(int x, int y , SDL_Rect *list, int size)
+int isblock(SDL_Rect *p, SDL_Rect *list, int size)
 {
     for (int i = 0; i < size; i++)
     {
+        int x = p->x + p->w / 2;
+        int y = p->y + p->h / 2;
         int w = list[i].w;
         int h = list[i].h;
         if (x >= list[i].x && x <= list[i].x + w)
         {
-            if (y >= list[i].y && y <= list[i].y + h)
+            if ((y >= list[i].y - 25 && y <= list[i].y + h + 25 && w > 0 && h > 0))
             {
                 return 1;
             }
@@ -40,15 +42,17 @@ int is_on_platform(SDL_Rect *player, SDL_Rect *blocks, int size)
     return 0;
 }
 
-int found_bonus(int x, int y, SDL_Rect *list, int size)
+int found_bonus(SDL_Rect *p, SDL_Rect *list, int size)
 {
+    int x = p->x + p->w / 2;
+    int y = p->y + p->h / 2;
     for (int i = 0; i < size; i++)
     {
         int w = list[i].w;
         int h = list[i].h;
         if (x >= list[i].x && x <= list[i].x + w)
         {
-            if (y >= list[i].y - 15 && y <= list[i].y + h + 15)
+            if ((y >= list[i].y - 25 && y <= list[i].y + h + 25 && w > 0 && h > 0))
             {
                 list[i].w = 0;
                 list[i].h = 0;

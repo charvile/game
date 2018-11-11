@@ -35,7 +35,7 @@ int main(void)
         //printf("Mix_Init: %s\n", Mix_GetError());
         //exit(2);
     //}
-    Mix_OpenAudio(MIX_DEFAULT_FREQUENCY*2, MIX_DEFAULT_FORMAT, 2, 1024);
+    Mix_OpenAudio(MIX_DEFAULT_FREQUENCY * 2, MIX_DEFAULT_FORMAT, 2, 1024);
 
     Mix_Music *backgroundSound = Mix_LoadMUS("src/ressource/sound/sound.mp3");
     Mix_Chunk *applause = Mix_LoadWAV("src/ressource/sound/applause_y.wav");
@@ -56,8 +56,7 @@ int main(void)
 
     /* Create player and ennemy*/
     struct player *p = initplayer(20, 450, renderer);
-    struct player *bad = initennemy(50,450, renderer);
-    //struct player *bad_2 = initennemy(320,450, renderer);
+    struct player *bad = initennemy(250,436, renderer);
     p->speed->y = INITIAL_VERTICAL_SPEED;
     p->speed->x = INITIAL_HORIZONTAL_SPEED;
 
@@ -75,6 +74,7 @@ int main(void)
     SDL_Texture *rot = SDL_CreateTextureFromSurface(renderer, bad->sprite_mirror);
     SDL_Texture *normal_sprite = SDL_CreateTextureFromSurface(renderer, bad->sprite);
 
+    SDL_Texture *platform_texture = create_texture_from_image("src/ressource/sprit/platform.png", renderer);
     SDL_Texture *floor_texture = create_texture_from_image("src/ressource/texture/floor.png", renderer);
     SDL_Texture *welcome_texture = create_texture_from_image("src/ressource/texture/Welcome_2.jpg", renderer);
     SDL_Texture *background_texture = create_texture_from_image("src/ressource/texture/planet1.png", renderer);
@@ -121,7 +121,7 @@ game_start:
     while (running)
     {
         //printf("Player pos : %d;%d\n", p->rect->x, p->rect->y);
-        if (isblock(p->rect->x + p->rect->w, p->rect->y, &finish, 1))
+        if (isblock(p->rect, &finish, 1))
         {
             win = true;
         }
@@ -131,12 +131,17 @@ game_start:
             p->is_in_jump = 1;
             p->speed->y = 0;
         }
-        if (found_bonus(p->rect->x + p->rect->w, p->rect->y, bonuses, 8))
+        if (found_bonus(p->rect, bonuses, 8))
         {
             score++;
         }
-         if (found_bonus(p->rect->x + p->rect->w, p->rect->y, spikes, num_spikes ))
+         if (found_bonus(p->rect, spikes, num_spikes))
         {
+            p->life -= 10;
+        }
+        if (isblock(p->rect, bad->rect, 1))
+        {
+            Mix_PlayChannel(-1, applause, 0);
             p->life -= 10;
         }
 
@@ -191,14 +196,12 @@ game_start:
 
                     if (x >= 300 && x <= 500 && y >= 380 && y <= 430)
                     {
-                        puts("RESTArt!");
                         win = false;
                         goto game_start;
                         continue;
                     }
                     if (x >= 300 && x <= 500 && y >= 450 && y <= 500)
                     {
-                        puts("Back to menu");
                         playing = false;
                         win = false;
                         goto game_start;
@@ -220,13 +223,11 @@ game_start:
                     int y = event.button.y;
 
                     if (x >= 300 && x <= 500 && y >= 300 && y <= 350)
-        SDL_RenderFillRects(renderer, blocks, num_blocks);
                     {
                         level++;
                         win = false;
                         goto game_start;
                         continue;
-        SDL_RenderFillRects(renderer, blocks, num_blocks);
                     }
                     if (x >= 300 && x <= 500 && y >= 375 && y <= 425)
                     {
@@ -269,16 +270,12 @@ game_start:
                     }
                     else if(p->rect->x > 0)
                     {
-                        if (!isblock(p->rect->x - p->rect->w, p->rect->y, blocks, num_blocks))
+                        if (!isblock(p->rect, blocks, num_blocks))
                         {
                             p->rect->x += offset;
                             p->pos->x += offset;
                         }
-                        if (isHit(bad, p->rect->x - p->rect->w, p->rect->y))
-                        {
-                            Mix_PlayChannel(-1, applause, 0);
-                            p->life -= 10;
-                        }
+
 
                     }
                 }
@@ -299,16 +296,12 @@ game_start:
                     }
                     else
                     {
-                        if (!isblock(p->rect->x + p->rect->w, p->rect->y, blocks, num_blocks))
+                        if (!isblock(p->rect, blocks, num_blocks))
                         {
                             p->rect->x += offset;
 
                         }
-                        if (isHit(bad, p->rect->x + p->rect->w, p->rect->y))
-                        {
-                            Mix_PlayChannel(-1, applause, 0);
-                            p->life -= 10;
-                        }
+
                     }
 
                 }
@@ -404,7 +397,11 @@ game_start:
 
         /* Display obstacles */
         SDL_SetRenderDrawColor(renderer, 112, 115, 114, 255);
-        SDL_RenderFillRects(renderer, blocks, num_blocks);
+        for (int i = 0; i < num_blocks; i++)
+        {
+            display_sprite_from_texture(platform_texture, &blocks[i], renderer);
+        }
+        //SDL_RenderFillRects(renderer, blocks, num_blocks);
 
         for (int i = 0; i < 8; i++)
         {
