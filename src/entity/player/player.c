@@ -10,7 +10,8 @@ struct player *initplayer(int x, int y, SDL_Renderer *renderer)
     player->sprite = IMG_Load("src/ressource/sprit/morty_right_1.png");
     player->sprite_mirror = IMG_Load("src/ressource/sprit/morty_left_1.png");
     player->texture = SDL_CreateTextureFromSurface(renderer, player->sprite);
-    player->texture_mirror = SDL_CreateTextureFromSurface(renderer, player->sprite_mirror);
+    player->texture_mirror = SDL_CreateTextureFromSurface(renderer,
+        player->sprite_mirror);
 
     player->rect = malloc(sizeof(SDL_Rect));
     player->rect->x = x;

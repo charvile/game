@@ -41,7 +41,7 @@ FEATURES
 * Character -> run left and right, jump up
 * Dangers -> spikes and ennemies
 * Title Screen -> navigation menus
-* Sound -> background music and special effets
+* Sound -> background music and special effets (jump, hit, bonus)
 * Animation -> gravity, jump, moving ennemy and player mirroring
 * Scrolling -> scroll left and right with the map
 * Randomization -> randomly generate spikes and bonuses
